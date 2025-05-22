@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://localhost:8080/static/js/tailwind.css.min.js"></script>
+</head>
+<style>
+
+</style>
+<body>
+    <div class="bg-gray-200 h-screen w-full flex flex-col relative">
+
+        <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none;" class="h-screen w-full fixed  items-center justify-center">
+            <div class="z-50 bg-white h-auto w-96 ">
+                <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
+                    <div class="w-full flex items-center justify-between">
+                        <h1>Login</h1>
+                        <button id="close-th-btn" class="cursor-pointer">X</button>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <p>Title</p>
+                        <input id="thread-title" name="thread-title" class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text" placeholder="Enter Title" />
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <p>Description</p>
+                        <input id="thread-content" name="Description" class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text" placeholder="Enter Description" />
+                    </div>
+        
+                    <div class="flex">
+                        <button id="create-thread-btn" class="bg-black cursor-pointer text-white p-2 rounded-sm w-full" type="submit">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <header class="bg-black h-20 w-full flex items-center justify-between py-3 px-40">
+            <div>
+                <h1 class="text-2xl text-white text-bold">Koyjack Forum</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="bg-white p-2 cursor-pointer">SignIn</button>
+                <button class="bg-white p-2 cursor-pointer">SignUp</button>
+            </div>
+        </header>
+        <div class=" px-40 py-6">
+            <div class="bg-gray-300 h-auto w-full p-5 flex flex-col gap-3">
+                <div class="w-full flex justify-between items-center">
+                    <h1>Discussion Forum</h1>
+                    <button id="add-th-btn" class="bg-black p-2 text-white cursor-pointer">Add Thread</button>
+                </div>
+                <div class="flex w-full justify-between gap-4">
+                    <div class="flex flex-col gap-3 w-full">
+
+                        {{ range .Threads }}
+
+                        <div class="flex w-full p-2 bg-slate-400 gap-4">
+                            <div class="p-2 h-16 w-16 bg-gray-300"></div>
+                            <div class="flex flex-col gap-3 w-full">
+                                <a href="#" class="underline">{{ .ThreadTitle }}</a>
+                                <div class="w-full flex justify-between">
+                                    <p>{{ .ThreadContent }}</p>
+                                    <p class="underline text-sm cursor-pointer">{{ .CreatedAt }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{ end }}
+
+                    </div>
+                    <div class="flex flex-col gap-7 w-60">
+                        <div class="border border-gray-700">
+                            <div class="p-2 bg-gray-200">
+                                <h1 class="text-black">Latest Threads</h1>
+                            </div>
+                            <div class="p-2 ">
+                                <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                            </div>
+                        </div>
+                        <div class="border border-gray-700">
+                            <div class="p-2 bg-gray-200">
+                                <h1 class="text-black">Latest Posts</h1>
+                            </div>
+                            <div class="p-2 ">
+                                <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="http://localhost:8080/static/js/global.js"></script>
+</body>
+</html>
