@@ -1,0 +1,51 @@
+
+* {
+}
+:root {
+    --main-header-bg: #353C41;
+    --main-panel-bg: #E9F4EF;
+    --rounded-sm: 4px;
+    --primary-btn-bg:  #177EC9;
+    --primary-bg-bg-hover: #328bca;
+    --light-seperator-bg: rgb(219, 219, 219);
+}
+.header-bg {
+    background-color: var(--main-header-bg);
+}
+.panel-bg {
+    background-color: var(--main-panel-bg);
+}
+
+.material-box-shadow-large {
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+.material-box-shadow-small {
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+.material-box-shadow-thin {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px;
+}
+.main-horizontal-padding {
+    padding-left: 250px;
+    padding-right: 250px;
+}
+
+.primary-button-design {
+    background-color: var(--primary-btn-bg);
+    color: white;
+    font-weight: 500;
+    padding: 6px 16px 6px 16px;
+    border-radius: var(--rounded-sm);
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px;
+}
+.primary-button-design:hover {
+    background-color: var(--primary-bg-bg-hover)
+}
+.logo-img {
+    height: 70px;
+    width: auto;
+}
+.horizontal-seperator {
+    background-color: var(--light-seperator-bg);
+}

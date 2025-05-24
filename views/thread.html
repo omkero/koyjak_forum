@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="http://127.0.0.1:8080/static/js/tailwind.css.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="http://127.0.0.1:8080/static/css/globals.css"
+    />
+    <link
+      rel="stylesheet"
+      href="http://127.0.0.1:8080/static/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="http://127.0.0.1:8080/static/css/fontawesome/all.css"
+    />
+  </head>
+  <style></style>
+  <body>
+    <section class="panel-bg h-auto w-full flex flex-col relative">
+
+      <header
+        class="header-bg h-auto w-full flex flex-col items-center gap-3 justify-between py-3 main-horizontal-padding"
+      >
+        <div class="w-full flex items-center justify-between">
+          <div>
+            <img
+              class="logo-img"
+              src="http://localhost:8080/static/imgs/example-logo.png"
+            />
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="p-2 cursor-pointer text-white font-normal">
+              Existing user? Sign In
+            </button>
+            <button class="primary-button-design">Sign Up</button>
+          </div>
+        </div>
+        <div class="w-full flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Browse</a
+            >
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Events</a
+            >
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Activity</a
+            >
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Support</a
+            >
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Boards</a
+            >
+            <a
+              class="text-zinc-300 font-normal text-sm hover:text-white"
+              href="#"
+              >Extra</a
+            >
+          </div>
+          <div>
+            <input
+              name="search"
+              class="w-60 bg-white rounded-md text-black outline-none py-1 px-3"
+              type="text"
+              placeholder="Search .."
+            />
+          </div>
+        </div>
+      </header>
+
+      <div class="main-horizontal-padding py-6 flex gap-4">
+
+        {{ if .Error}} 
+        <div class="flex flex-col gap-4 w-full">
+          <div class="bg-white h-96 flex items-center justify-center">
+            <h1> {{ .Error }} </h1>
+          </div>
+        </div>
+        
+        {{ else }}
+        <div class="flex flex-col gap-4 w-full">
+            <div class="w-full header-bg p-2 px-3 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
+                <div class="flex items-center gap-3">
+                     <div class="rounded-md bg-neutral-300 p-1 px-5">
+                        <i class="fa fa-comments text-black"></i>
+                        <span class="text-sm">Gobal</span>
+                     </div>
+                    <h1 class="text-white">{{ .ThreadTitle }}</h1>
+                </div>
+                <button id="add-th-btn" class="primary-button-design">Reply</button>
+            </div>
+          <div
+            class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm"
+          >
+          
+            <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
+              <div class="w-full flex items-center justify-center">
+                <h1 class="text-black text-xl font-bold">{{ .UserName }}</h1>
+              </div>
+              <div
+                class="w-full flex flex-col gap-3 justify-center items-center"
+              >
+                <div
+                  class="bg-orange-400 rounded-full h-26 w-26 flex items-center justify-center"
+                >
+                  <span class="text-4xl font-bold text-white">J</span>
+                </div>
+                <span class="text-violet-400 font-bold">Root Admin</span>
+                <div>
+                  <span class="text-zinc-500"
+                    ><i class="fa fa-comments"></i>
+                  </span>
+                  <span class="text-zinc-500 text-sm">199</span>
+                </div>
+              </div>
+            </div>
+            <div class="h-full w-full flex flex-col gap-4 p-5">
+              <div class="flex items-center w-full justify-between">
+                <h3 class="text-neutral-500 font-normal">Posted January 29</h3>
+                <span class="text-blue-400 hover:underline cursor-pointer">#1</span>
+              </div>
+              <content>
+                <p class="text-black text-sm">
+                  {{ .ThreadContent }}
+                </p>
+              </content>
+            </div>
+          </div>
+
+          <div
+            class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm"
+          >
+            <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
+              <div class="w-full flex items-center justify-center">
+                <h1 class="text-black text-xl font-bold">Xavier</h1>
+              </div>
+              <div
+                class="w-full flex flex-col gap-3 justify-center items-center"
+              >
+                <div
+                  class="bg-blue-400 rounded-full h-26 w-26 flex items-center justify-center"
+                >
+                  <span class="text-4xl font-bold text-white">M</span>
+                </div>
+                <span class="text-violet-400 font-bold">Worrior</span>
+                <div>
+                  <span class="text-zinc-500"
+                    ><i class="fa fa-comments"></i>
+                  </span>
+                  <span class="text-zinc-500 text-sm">16</span>
+                </div>
+              </div>
+            </div>
+            <div class="h-full w-full flex flex-col gap-4 p-5">
+              <div>
+                <h3 class="text-neutral-500 font-normal">Posted January 29</h3>
+              </div>
+              <content>
+                <p class="text-black text-sm">
+                  This page has links to a ton of tools, software and other
+                  useful resources that will help with your web design
+                  adventures. I've put them into categories to make things<br><br>
+
+                  Marketing tools Enjoy! If I've missed anything then please do
+                  let me know and I'll get it added 😁
+                </p>
+              </content>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex flex-col gap-7 w-96">
+          <div class="material-box-shadow-thin">
+            <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+              <h1 class="text-white">Recents</h1>
+            </div>
+            <div class="p-2 bg-white">
+              <p class="text-xs">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
+                accusamus laudantium inventore! Nisi amet hic quo cupiditate
+                numquam atque illum maiores veniam, eveniet quae, asperiores
+                optio quidem neque facilis ratione!
+              </p>
+            </div>
+          </div>
+          <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
+            <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+              <h1 class="text-white">Latest Posts</h1>
+            </div>
+            <div class="p-2 bg-white">
+              <p class="text-xs">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
+                accusamus laudantium inventore! Nisi amet hic quo cupiditate
+                numquam atque illum maiores veniam, eveniet quae, asperiores
+                optio quidem neque facilis ratione!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{ end }}
+
+    </section>
+    <script src="http://localhost:8080/static/js/global.js"></script>
+  </body>
+</html>

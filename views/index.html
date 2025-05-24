@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="http://localhost:8080/static/js/tailwind.css.min.js"></script>
+    <script src="http://127.0.0.1:8080/static/js/tailwind.css.min.js"></script>
+    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/globals.css" />
+    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/all.min.css" />
+    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/fontawesome/all.css">
 </head>
 <style>
 
 </style>
 <body>
-    <div class="bg-gray-200 h-screen w-full flex flex-col relative">
+    <section class="panel-bg h-auto w-full flex flex-col relative">
 
         <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none;" class="h-screen w-full fixed  items-center justify-center">
             <div class="z-50 bg-white h-auto w-96 ">
@@ -36,62 +39,89 @@
             </div>
         </div>
 
-        <header class="bg-black h-20 w-full flex items-center justify-between py-3 px-40">
-            <div>
-                <h1 class="text-2xl text-white text-bold">Koyjack Forum</h1>
+        <header class="header-bg h-auto w-full flex flex-col items-center gap-3 justify-between py-3 main-horizontal-padding">
+            <div class="w-full flex items-center justify-between ">
+                <div>
+                    <img class="logo-img" src="http://localhost:8080/static/imgs/example-logo.png" />
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="p-2 cursor-pointer text-white font-normal">Existing user? Sign In </button>
+                    <button class="primary-button-design">Sign Up</button>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button class="bg-white p-2 cursor-pointer">SignIn</button>
-                <button class="bg-white p-2 cursor-pointer">SignUp</button>
+            <div class="w-full flex items-center justify-between ">
+                <div class="flex items-center gap-4">
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Browse</a>
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Events</a>
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Activity</a>
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Support</a>
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Boards</a>
+                    <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Extra</a>
+                </div>
+                <div>
+                    <input name="search" class="w-60 bg-white rounded-md text-black outline-none py-1 px-3" type="text" placeholder="Search .." />
+                </div>
             </div>
         </header>
-        <div class=" px-40 py-6">
-            <div class="bg-gray-300 h-auto w-full p-5 flex flex-col gap-3">
-                <div class="w-full flex justify-between items-center">
-                    <h1>Discussion Forum</h1>
+
+        <div class="main-horizontal-padding py-6 flex gap-4">
+            <div class="bg-white material-box-shadow-thin h-auto w-full  flex flex-col rounded-sm">
+                <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
+                    <h1 class="text-white">Discussion Forum</h1>
                     <button id="add-th-btn" class="bg-black p-2 text-white cursor-pointer">Add Thread</button>
                 </div>
                 <div class="flex w-full justify-between gap-4">
-                    <div class="flex flex-col gap-3 w-full">
-
+                    {{if .Error}}
+                    <div class="flex flex-col w-full h-full">
+                        <div class="flex w-full p-2 items-center bg-white gap-4">
+                            <h1>{{ .Error }}</h1>
+                        </div>
+                        <span class="bg-gray-200 w-full h-[1px]"></span>
+                    </div>
+                    {{ else }}
+                    <div class="flex flex-col w-full">
                         {{ range .Threads }}
-
-                        <div class="flex w-full p-2 bg-slate-400 gap-4">
-                            <div class="p-2 h-16 w-16 bg-gray-300"></div>
-                            <div class="flex flex-col gap-3 w-full">
-                                <a href="#" class="underline">{{ .ThreadTitle }}</a>
+                        <div class="flex w-full p-2 items-center bg-white gap-4">
+                            <div style="border-radius: 50%;" class="bg-neutral-200 p-5 flex items-center justify-center">
+                              <i class="fa fa-comments text-white"></i>
+                            </div>
+                            <div class="flex flex-col gap-1 w-full">
+                                <a href="{{ .SafeUrl }}" class=" text-violet-600">{{ .ThreadTitle }}</a>
                                 <div class="w-full flex justify-between">
-                                    <p>{{ .ThreadContent }}</p>
+                                    <p class="text-gray-500 text-sm">{{ .ThreadContent }}</p>
                                     <p class="underline text-sm cursor-pointer">{{ .CreatedAt }}</p>
                                 </div>
                             </div>
                         </div>
-
+                        <span class="bg-gray-200 w-full h-[1px]"></span>
                         {{ end }}
-
                     </div>
-                    <div class="flex flex-col gap-7 w-60">
-                        <div class="border border-gray-700">
-                            <div class="p-2 bg-gray-200">
-                                <h1 class="text-black">Latest Threads</h1>
-                            </div>
-                            <div class="p-2 ">
-                                <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
-                            </div>
-                        </div>
-                        <div class="border border-gray-700">
-                            <div class="p-2 bg-gray-200">
-                                <h1 class="text-black">Latest Posts</h1>
-                            </div>
-                            <div class="p-2 ">
-                                <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
-                            </div>
-                        </div>
+                    {{ end }}
+   
+                </div>
+            </div>
+            <div class="flex flex-col gap-7 w-60">
+                <div class="material-box-shadow-thin ">
+                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+                        <h1 class="text-white">Recents</h1>
+                    </div>
+                    <div class="p-2 bg-white">
+                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                    </div>
+                </div>
+                <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
+                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+                        <h1 class="text-white">Latest Posts</h1>
+                    </div>
+                    <div class="p-2 bg-white">
+                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam, eveniet quae, asperiores optio quidem neque facilis ratione!</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+
+    </section>
     <script src="http://localhost:8080/static/js/global.js"></script>
 </body>
 </html>

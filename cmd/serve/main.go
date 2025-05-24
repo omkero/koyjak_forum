@@ -17,6 +17,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
