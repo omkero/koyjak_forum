@@ -11,6 +11,7 @@ func MainHandler(Koyjak *fiber.App) {
 	{
 		Koyjak.Post("/create_thread", appko.post_thread_controller)
 		Koyjak.Get("/:thread", appko.get_thread_controller)
+		Koyjak.Post("/create_post", appko.post_reply_controller)
 	}
 
 }

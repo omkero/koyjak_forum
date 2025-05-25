@@ -89,7 +89,7 @@
                                 <a href="{{ .SafeUrl }}" class=" text-violet-600">{{ .ThreadTitle }}</a>
                                 <div class="w-full flex justify-between">
                                     <p class="text-gray-500 text-sm">{{ .ThreadContent }}</p>
-                                    <p class="underline text-sm cursor-pointer">{{ .CreatedAt }}</p>
+                                    <p class="underline text-sm cursor-pointer" data-time="{{ .CreatedAt }}">{{ .CreatedAtSince }}</p>
                                 </div>
                             </div>
                         </div>

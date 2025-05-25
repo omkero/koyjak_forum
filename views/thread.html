@@ -21,6 +21,47 @@
   <style></style>
   <body>
     <section class="panel-bg h-auto w-full flex flex-col relative">
+      <div
+        id="th-modal"
+        style="background-color: rgb(0, 0, 0, 0.4); display: none"
+        class="h-screen w-full fixed items-center justify-center"
+      >
+        <div class="z-50 bg-white h-auto w-96">
+          <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
+            <div class="w-full flex items-center justify-between">
+              <h1>Post</h1>
+              <button id="close-th-btn" class="cursor-pointer">X</button>
+            </div>
+            <div class="flex flex-col gap-3">
+              <p>Title</p>
+              <input
+                id="post-title"
+                name="post-title"
+                class="w-full outline outline-gray-200 p-2 focus:outline-blue-400"
+                type="text"
+                placeholder="Enter Title"
+              />
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <p>Description</p>
+              <input
+                id="post-content"
+                name="post-content"
+                class="w-full outline outline-gray-200 p-2 focus:outline-blue-400"
+                type="text"
+                placeholder="Enter Description"
+              />
+            </div>
+
+            <div class="flex">
+              <button id="create-post-btn" class="primary-button-design">
+                Reply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <header
         class="header-bg h-auto w-full flex flex-col items-center gap-3 justify-between py-3 main-horizontal-padding"
@@ -84,33 +125,35 @@
       </header>
 
       <div class="main-horizontal-padding py-6 flex gap-4">
-
-        {{ if .Error}} 
+        {{ if .Error}}
         <div class="flex flex-col gap-4 w-full">
           <div class="bg-white h-96 flex items-center justify-center">
-            <h1> {{ .Error }} </h1>
+            <h1>{{ .Error }}</h1>
           </div>
         </div>
-        
+
         {{ else }}
         <div class="flex flex-col gap-4 w-full">
-            <div class="w-full header-bg p-2 px-3 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
-                <div class="flex items-center gap-3">
-                     <div class="rounded-md bg-neutral-300 p-1 px-5">
-                        <i class="fa fa-comments text-black"></i>
-                        <span class="text-sm">Gobal</span>
-                     </div>
-                    <h1 class="text-white">{{ .ThreadTitle }}</h1>
-                </div>
-                <button id="add-th-btn" class="primary-button-design">Reply</button>
+          <div
+            class="w-full header-bg p-2 px-3 flex justify-between items-center rounded-tl-sm rounded-tr-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div class="rounded-md bg-neutral-300 p-1 px-5">
+                <i class="fa fa-comments text-black"></i>
+                <span class="text-sm">Gobal</span>
+              </div>
+              <h1 class="text-white">{{ .Thread.ThreadTitle }}</h1>
             </div>
+            <button id="add-th-btn" class="primary-button-design">Reply</button>
+          </div>
           <div
             class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm"
           >
-          
             <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
               <div class="w-full flex items-center justify-center">
-                <h1 class="text-black text-xl font-bold">{{ .UserName }}</h1>
+                <h1 class="text-black text-xl font-bold">
+                  {{ .Thread.Member.UserName }}
+                </h1>
               </div>
               <div
                 class="w-full flex flex-col gap-3 justify-center items-center"
@@ -131,23 +174,29 @@
             </div>
             <div class="h-full w-full flex flex-col gap-4 p-5">
               <div class="flex items-center w-full justify-between">
-                <h3 class="text-neutral-500 font-normal">Posted January 29</h3>
-                <span class="text-blue-400 hover:underline cursor-pointer">#1</span>
+                <h3 class="text-neutral-500 font-normal">
+                  {{ .Thread.CreatedAtSince }}
+                </h3>
+                <span class="text-blue-400 hover:underline cursor-pointer"
+                  >#1</span
+                >
               </div>
               <content>
-                <p class="text-black text-sm">
-                  {{ .ThreadContent }}
-                </p>
+                <p class="text-black text-sm">{{ .Thread.ThreadContent }}</p>
               </content>
             </div>
           </div>
+
+          {{ range .Posts }}
 
           <div
             class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm"
           >
             <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
               <div class="w-full flex items-center justify-center">
-                <h1 class="text-black text-xl font-bold">Xavier</h1>
+                <h1 class="text-black text-xl font-bold">
+                  {{ .Member.UserName }}
+                </h1>
               </div>
               <div
                 class="w-full flex flex-col gap-3 justify-center items-center"
@@ -168,21 +217,17 @@
             </div>
             <div class="h-full w-full flex flex-col gap-4 p-5">
               <div>
-                <h3 class="text-neutral-500 font-normal">Posted January 29</h3>
+                <h3 class="text-neutral-500 font-normal">
+                  {{ .CreatedAtSince }}
+                </h3>
               </div>
               <content>
-                <p class="text-black text-sm">
-                  This page has links to a ton of tools, software and other
-                  useful resources that will help with your web design
-                  adventures. I've put them into categories to make things<br><br>
-
-                  Marketing tools Enjoy! If I've missed anything then please do
-                  let me know and I'll get it added 😁
-                </p>
+                <p class="text-black text-sm">{{ .PostContent }}</p>
               </content>
             </div>
           </div>
 
+          {{ end }}
         </div>
 
         <div class="flex flex-col gap-7 w-96">
@@ -216,7 +261,6 @@
       </div>
 
       {{ end }}
-
     </section>
     <script src="http://localhost:8080/static/js/global.js"></script>
   </body>

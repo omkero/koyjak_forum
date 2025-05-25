@@ -43,3 +43,5 @@ func (Th *App) member_global_information(user_id int) (MemberGlobalModel, error)
 
 	return Member, nil
 }
+
+// working on authentication
