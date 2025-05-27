@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="http://127.0.0.1:8080/static/js/tailwind.css.min.js"></script>
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/globals.css" />
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/all.min.css" />
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/fontawesome/all.css" />
+</head>
+<style></style>
+
+<body class="panel-bg">
+  <section class="panel-bg h-auto w-full flex flex-col relative">
+    <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none"
+      class="h-screen w-full fixed items-center justify-center">
+      <div class="z-50 bg-white h-auto w-96">
+        <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
+          <div class="w-full flex items-center justify-between">
+            <h1>Post</h1>
+            <button id="close-th-btn" class="cursor-pointer">X</button>
+          </div>
+          <div class="flex flex-col gap-3">
+            <p>Title</p>
+            <input id="post-title" name="post-title" class="w-full outline outline-gray-200 p-2 focus:outline-blue-400"
+              type="text" placeholder="Enter Title" />
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <p>Description</p>
+            <input id="post-content" name="post-content"
+              class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
+              placeholder="Enter Description" />
+          </div>
+
+          <div class="flex">
+            <button id="create-post-btn" class="primary-button-design">
+              Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="header-bg h-auto w-full  duration-300 flex flex-col items-center gap-3 justify-between py-3">
+      <div class="w-full">
+        <div class="w-full flex items-center justify-between main-horizontal-padding">
+          <a href="/">
+            <img class="logo-img" src="http://localhost:8080/static/imgs/example-logo.png" />
+          </a>
+          <div class="flex items-center gap-3">
+            <a href="auth/signin" class="p-2 cursor-pointer text-white font-normal">
+              Existing user? Sign In
+            </a>
+            <a href="auth/signup" class="primary-button-design">Sign Up</a>
+
+          </div>
+        </div>
+        <div class="w-full flex items-center justify-between main-horizontal-padding">
+          <div class="flex items-center gap-4">
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="/">Home</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Events</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Activity</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Support</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Boards</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Extra</a>
+          </div>
+          <div>
+            <input name="search" class="w-60 bg-white rounded-md text-black outline-none py-1 px-3 hidden sm:flex"
+              type="text" placeholder="Search .." />
+          </div>
+        </div>
+      </div>
+    </header>
+  </section>
+
+  <section class="main-horizontal-padding">
+    <div class="tt  py-6 flex  flex-col lg:flex-row gap-4">
+      {{ if .Error}}
+      <div class="flex flex-col gap-4 w-full">
+        <div class="bg-white h-96 flex items-center justify-center">
+          <h1>{{ .Error }}</h1>
+        </div>
+      </div>
+      {{ else }}
+      <div class="flex flex-col gap-4 w-full">
+        <div class="w-full header-bg p-2 px-3 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
+          <div class="flex items-center gap-3">
+            <div class="rounded-md bg-neutral-300 p-1 px-5">
+              <i class="fa fa-comments text-black"></i>
+              <span class="text-sm">Gobal</span>
+            </div>
+            <h1 class="text-white">{{ .Thread.ThreadTitle }}</h1>
+          </div>
+          <button id="add-th-btn" class="primary-button-design">Reply</button>
+        </div>
+        <div class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
+          <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
+            <div class="w-full flex items-center justify-center">
+              <h1 class="text-black text-xl font-bold">
+                {{ .Thread.Member.UserName }}
+              </h1>
+            </div>
+            <div class="w-full flex flex-col gap-3 justify-center items-center">
+              <div class="bg-orange-400 rounded-full h-26 w-26 flex items-center justify-center">
+                <span class="text-4xl font-bold text-white">J</span>
+              </div>
+              <span class="text-violet-400 font-bold">Root Admin</span>
+              <div>
+                <span class="text-zinc-500"><i class="fa fa-comments"></i>
+                </span>
+                <span class="text-zinc-500 text-sm">199</span>
+              </div>
+            </div>
+          </div>
+          <div class="h-full w-full flex flex-col gap-4 p-5">
+            <div class="flex items-center w-full justify-between">
+              <h3 class="text-neutral-500 font-normal">
+                {{ .Thread.CreatedAtSince }}
+              </h3>
+              <span class="text-blue-400 hover:underline cursor-pointer">#1</span>
+            </div>
+            <content>
+              <p class="text-black text-sm">{{ .Thread.ThreadContent }}</p>
+            </content>
+          </div>
+        </div>
+        {{ range .Posts }}
+        <div class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
+          <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
+            <div class="w-full flex items-center justify-center">
+              <h1 class="text-black text-xl font-bold">
+                {{ .Member.UserName }}
+              </h1>
+            </div>
+            <div class="w-full flex flex-col gap-3 justify-center items-center">
+              <div class="bg-blue-400 rounded-full h-26 w-26 flex items-center justify-center">
+                <span class="text-4xl font-bold text-white">M</span>
+              </div>
+              <span class="text-violet-400 font-bold">Worrior</span>
+              <div>
+                <span class="text-zinc-500"><i class="fa fa-comments"></i>
+                </span>
+                <span class="text-zinc-500 text-sm">16</span>
+              </div>
+            </div>
+          </div>
+          <div class="h-full w-full flex flex-col gap-4 p-5">
+            <div>
+              <h3 class="text-neutral-500 font-normal">
+                {{ .CreatedAtSince }}
+              </h3>
+            </div>
+            <content>
+              <p class="text-black text-sm">{{ .PostContent }}</p>
+            </content>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+      <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
+        <div class="material-box-shadow-thin">
+          <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+            <h1 class="text-white">Recents</h1>
+          </div>
+          <div class="p-2 bg-white">
+            <p class="text-xs">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
+              accusamus laudantium inventore! Nisi amet hic quo cupiditate
+              numquam atque illum maiores veniam, eveniet quae, asperiores
+              optio quidem neque facilis ratione!
+            </p>
+          </div>
+        </div>
+        <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
+          <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+            <h1 class="text-white">Latest Posts</h1>
+          </div>
+          <div class="p-2 bg-white">
+            <p class="text-xs">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
+              accusamus laudantium inventore! Nisi amet hic quo cupiditate
+              numquam atque illum maiores veniam, eveniet quae, asperiores
+              optio quidem neque facilis ratione!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {{ end }}
+
+  <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">
+    <div class="flex gap-3">
+      <a class="text-sm text-gray-700" href="#">Contact Us</a>
+      <a class="text-sm text-gray-700" href="#">Privacy Policy</a>
+      <a class="text-sm text-gray-700" href="#">About Us</a>
+      <a class="text-sm text-gray-700" href="#">Code of Conduct</a>
+      <a class="text-sm text-gray-700" href="#">TOS</a>
+      <a class="text-sm text-gray-700" href="#">FTC</a>
+    </div>
+    <div>
+      <p class="text-xs text-zinc-400">Powered by Invision Community</p>
+    </div>
+  </footer>
+
+  <script src="http://localhost:8080/static/js/global.js"></script>
+</body>
+</html>

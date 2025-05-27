@@ -9,35 +9,34 @@
     <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/all.min.css" />
     <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/fontawesome/all.css">
 </head>
-<style>
-</style>
 <body class="panel-bg">
-    <section class="panel-bg h-auto w-full flex flex-col relative">
-        <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none;"
-            class="h-screen w-full fixed  items-center justify-center">
-            <div class="z-50 bg-white h-auto w-96 ">
+    <section class="panel-bg h-full w-full flex flex-col relative">
+        <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none"
+            class="h-auto w-full fixed items-center justify-center">
+            <div class="z-50 bg-white h-auto w-96">
                 <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
                     <div class="w-full flex items-center justify-between">
-                        <h1>Login</h1>
+                        <h1>Post</h1>
                         <button id="close-th-btn" class="cursor-pointer">X</button>
                     </div>
                     <div class="flex flex-col gap-3">
                         <p>Title</p>
-                        <input id="thread-title" name="thread-title"
+                        <input id="post-title" name="post-title"
                             class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
                             placeholder="Enter Title" />
                     </div>
 
                     <div class="flex flex-col gap-3">
                         <p>Description</p>
-                        <input id="thread-content" name="Description"
+                        <input id="post-content" name="post-content"
                             class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
                             placeholder="Enter Description" />
                     </div>
 
                     <div class="flex">
-                        <button id="create-thread-btn" class="bg-black cursor-pointer text-white p-2 rounded-sm w-full"
-                            type="submit">Sign In</button>
+                        <button id="create-post-btn" class="primary-button-design">
+                            Reply
+                        </button>
                     </div>
                 </div>
             </div>
@@ -74,64 +73,40 @@
         </header>
     </section>
     <section>
-        <div class="main-horizontal-padding py-6 flex flex-col lg:flex-row gap-4">
-            <div class="bg-white material-box-shadow-thin h-auto w-full  flex flex-col rounded-sm">
-                <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
-                    <h1 class="text-white">Discussion Forum</h1>
-                    <button id="add-th-btn" class="bg-black p-2 text-white cursor-pointer">Add Thread</button>
+        <div
+            class="h-full main-horizontal-padding py-6 w-full panel-bg flex items-center justify-center flex flex-col gap-4">
+            <div class="w-full flex flex-col gap-4">
+                <div id="response-box"
+                    class="hidden flex items-center justify-start bg-red-100 border border-red-700 p-3 w-full">
+                    <h1 id="resnponse-msg" class="text-red-700">Error missing username</h1>
                 </div>
-                <div class="flex w-full justify-between gap-4">
-                    {{if .Error}}
-                    <div class="flex flex-col w-full h-full">
-                        <div class="flex w-full p-2 items-center bg-white gap-4">
-                            <h1>{{ .Error }}</h1>
-                        </div>
-                        <span class="bg-gray-200 w-full h-[1px]"></span>
-                    </div>
-                    {{ else }}
-                    <div class="flex flex-col w-full">
-                        {{ range .Threads }}
-                        <div class="flex w-full p-2 items-center bg-white gap-4">
-                            <div style="border-radius: 50%;"
-                                class="bg-neutral-200 p-5 flex items-center justify-center">
-                                <i class="fa fa-comments text-white"></i>
-                            </div>
-                            <div class="flex flex-col gap-1 w-full">
-                                <a href="{{ .SafeUrl }}" class=" text-violet-600">{{ .ThreadTitle }}</a>
-                                <div class="w-full flex justify-between">
-                                    <p class="text-gray-500 text-sm">{{ .ThreadContent }}</p>
-                                    <p class="underline text-sm cursor-pointer" data-time="{{ .CreatedAt }}">{{
-                                        .CreatedAtSince }}</p>
-                                </div>
+                <div class="flex w-full justify-between gap-5 flex-col-reverse lg:flex-row">
+                    <div class="flex flex-col w-full gap-4 bg-white py-5 material-box-shadow-thin">
+                        <div class="px-5">
+                            <h1 class="font-bold text-2xl">Sign In</h1>
+                            <div>
+                                <span class="text-zinc-500" href="/auth/login">login to your account</span>
                             </div>
                         </div>
-                        <span class="bg-gray-200 w-full h-[1px]"></span>
-                        {{ end }}
+                        <span class="h-[1px] bg-gray-300 w-full "></span>
+                        <div class="flex flex-col w-full gap-4 px-5 ">
+                            <input id="reg-email" class="outline outline-gray-200 p-3 focus:outline-blue-400"
+                                type="text" placeholder="Email Address ..." />
+                            <input id="reg-password" class="outline outline-gray-200 p-3 focus:outline-blue-400"
+                                type="password" placeholder="Password ..." />
+                            <div>
+                                <button id="signup-btn" class="primary-button-design">Sign In</button>
+                            </div>
+                        </div>
                     </div>
-                    {{ end }}
-
-                </div>
-            </div>
-
-            <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
-                <div class="material-box-shadow-thin ">
-                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-                        <h1 class="text-white">Recents</h1>
-                    </div>
-                    <div class="p-2 bg-white">
-                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus
-                            laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam,
-                            eveniet quae, asperiores optio quidem neque facilis ratione!</p>
-                    </div>
-                </div>
-                <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
-                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-                        <h1 class="text-white">Latest Posts</h1>
-                    </div>
-                    <div class="p-2 bg-white">
-                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus
-                            laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam,
-                            eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                    <div class="flex flex-col w-full lg:w-[30%] h-full gap-4 bg-white py-5 material-box-shadow-thin">
+                        <div class="px-5 ">
+                            <h1 class="font-bold text-2xl">Sign Up</h1>
+                            <div>
+                                <span class="text-zinc-500" href="/auth/login">don't have account?</span>
+                                <a class="text-blue-400" href="/auth/signup">sign Up</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -152,4 +127,5 @@
     </footer>
     <script src="http://localhost:8080/static/js/global.js"></script>
 </body>
+
 </html>

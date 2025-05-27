@@ -64,7 +64,7 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 
 	thread, err := Th.get_thread_by_title(subsParam)
 	if err != nil {
-		return ctx.Render("thread", fiber.Map{
+		return ctx.Render("thread/thread", fiber.Map{
 			"Error": err.Error(),
 		})
 	}
@@ -72,12 +72,12 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	posts, err := Th.thread_posts(thread.ThreadID)
 	if err != nil {
 		fmt.Println(err)
-		return ctx.Render("thread", fiber.Map{
+		return ctx.Render("thread/thread", fiber.Map{
 			"Error": err.Error(),
 		})
 	}
 
-	return ctx.Render("thread", fiber.Map{
+	return ctx.Render("thread/thread", fiber.Map{
 		"Thread": thread,
 		"Posts":  posts,
 	})

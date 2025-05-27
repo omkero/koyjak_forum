@@ -6,8 +6,12 @@ const thAdd = document.getElementById("add-th-btn");
 const replyBtn = document.getElementById("create-post-btn");
 const threadCreateBtn = document.getElementById("create-thread-btn");
 
+const singupBtn = document.getElementById("signup-btn");
+const responseBox = document.getElementById("response-box")
+const responseMsg = document.getElementById("resnponse-msg")
+
 if (thModal && thCloseBtn && thAdd) {
-  // const create thre modal
+
   thAdd.addEventListener("click", () => {
     thModal.style.display = "flex";
   });
@@ -20,7 +24,7 @@ if (thModal && thCloseBtn && thAdd) {
 }
 
 if (threadCreateBtn) {
-  // create thread button
+  // thread button
   threadCreateBtn.onclick = async function () {
     const threadTitle = document.getElementById("thread-title").value;
     const threadContent = document.getElementById("thread-content").value;
@@ -39,13 +43,11 @@ if (threadCreateBtn) {
     const datas = await response.json();
     console.log(datas);
 
-    // refresh the page after the thread is secessfully created
     if (response.status == 201) {
       window.location.reload();
     }
   };
 }
-// reply to thread by posting
 
 if (replyBtn) {
   replyBtn.onclick = async function () {
@@ -65,9 +67,65 @@ if (replyBtn) {
 
     const datas = await response.json();
 
-    // refresh the page after the thread is secessfully created
     if (response.status == 201) {
       window.location.reload();
     }
   };
+}
+
+if (singupBtn && responseBox && responseMsg) {
+  singupBtn.onclick = async () => {
+    try {
+      const registerUsernameInput = document.getElementById("reg-username").value;
+      const registerEmailInput = document.getElementById("reg-email").value;
+      const registerPasswordInput = document.getElementById("reg-password").value;
+
+      if (!registerUsernameInput) {
+        responseBox.style.display = "flex";
+        responseMsg.innerText = "username is required !!";
+        return;
+
+      }
+      if (!registerEmailInput) {
+        responseBox.style.display = "flex";
+        responseMsg.innerText = "email address is required !!";
+        return;
+      }
+      if (!registerPasswordInput) {
+        responseBox.style.display = "flex";
+        responseMsg.innerText = "password is required !!";
+        return;
+      }
+
+      responseBox.style.display = "none";
+      const response = await fetch("/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          username: registerUsernameInput,
+          email_address: registerEmailInput,
+          password: registerPasswordInput
+        }),
+      })
+      const data = await response.json();
+      console.log(response.status);
+      console.log(data)
+
+      if (response.status !== 201) {
+        responseBox.style.display = "flex";
+        responseMsg.innerHTML = data?.message;
+      }
+
+      if (response.status == 201) {
+        window.location.href = "/";
+      }
+
+
+    } catch (err) {
+
+      console.error(err)
+    }
+  }
 }

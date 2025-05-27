@@ -2,16 +2,23 @@ package internal
 
 import "github.com/gofiber/fiber/v2"
 
+// each post request must call the controller directly and get will return the view
 func MainHandler(Koyjak *fiber.App) {
 	var appko = App{}
-
 	{
-		Koyjak.Get("/", appko.AppHandler)
+		Koyjak.Get("/", appko.RootPage)
 	}
 	{
 		Koyjak.Post("/create_thread", appko.post_thread_controller)
-		Koyjak.Get("/:thread", appko.get_thread_controller)
+		Koyjak.Get("/:thread", appko.ThreadPage)
 		Koyjak.Post("/create_post", appko.post_reply_controller)
+	}
+	{
+		Koyjak.Post("/auth/signup", appko.create_member_controller)
+		Koyjak.Get("/auth/signup", appko.SignUpPage)
+
+		Koyjak.Post("/auth/signin", appko.create_member_controller)
+		Koyjak.Get("/auth/signin", appko.SignInPage)
 	}
 
 }

@@ -24,7 +24,7 @@ func InitDB() {
 		}
 
 		// warning don use raw postgresql path like this use .env
-		Pool, err = pgxpool.New(context.Background(), "postgresql://postgres:root@localhost:5432/koyjak?sslmode=disable")
+		Pool, err = pgxpool.New(context.Background(), databaseURL)
 		if err != nil {
 			log.Fatalf("Failed to initialize database connection pool: %v", err)
 		}
