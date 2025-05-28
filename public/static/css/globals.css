@@ -4,6 +4,7 @@
     --rounded-sm: 4px;
     --primary-btn-bg: #177EC9;
     --primary-bg-bg-hover: #328bca;
+    --primary-bg-bg-focus: #5ea1d2;
     --light-seperator-bg: rgb(219, 219, 219);
 }
 
@@ -43,6 +44,10 @@ body {
 
 .primary-button-design:hover {
     background-color: var(--primary-bg-bg-hover)
+}
+
+.primary-button-design::focus {
+    background-color: var(--primary-bg-bg-focus)
 }
 
 .logo-img {

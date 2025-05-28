@@ -21,7 +21,7 @@ type MemberModel struct {
 	UserID       int       `json:"user_id" binding:"required"`
 	UserName     string    `json:"username" binding:"required"`
 	EmailAddress string    `json:"email_address" binding:"required"`
-	Password     string    `json:"password" binding:"required"`
+	Password     string    `json:"pwd" binding:"required"`
 	CreatedAt    time.Time `json:"created_at" bindind:"required"`
 }
 type MemberGlobalModel struct {
@@ -33,6 +33,11 @@ type MemberGlobalModel struct {
 
 type MemberBody struct {
 	UserName     string `json:"username" binding:"required"`
+	EmailAddress string `json:"email_address" binding:"required"`
+	Password     string `json:"password" binding:"required"`
+}
+
+type MemberAuthBody struct {
 	EmailAddress string `json:"email_address" binding:"required"`
 	Password     string `json:"password" binding:"required"`
 }
@@ -94,14 +99,73 @@ func (Th *App) create_member_controller(ctx *fiber.Ctx) error {
 
 	ctx.Status(http.StatusCreated)
 
-	/*
-		Here we set Session Cookies back to the client
-	*/
-
 	return ctx.JSON(fiber.Map{
 		"message": "member created",
 		"status":  http.StatusCreated,
 	})
+}
+
+func (Th *App) signin_member_controller(ctx *fiber.Ctx) error {
+	var Body MemberAuthBody
+
+	err := ctx.BodyParser(&Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if Body.EmailAddress == "" {
+		ctx.Status(http.StatusBadRequest)
+
+		return ctx.JSON(fiber.Map{
+			"message": "missing email_address",
+			"status":  http.StatusBadRequest,
+		})
+	}
+
+	if Body.Password == "" {
+		ctx.Status(http.StatusBadRequest)
+
+		return ctx.JSON(fiber.Map{
+			"message": "missing password",
+			"status":  http.StatusBadRequest,
+		})
+	}
+
+	response, err := Th.get_member_by_column_name("email_address", Body.EmailAddress)
+	if err != nil {
+		ctx.Status(http.StatusBadRequest)
+
+		return ctx.JSON(fiber.Map{
+			"message": err.Error(),
+			"status":  http.StatusBadRequest,
+		})
+	}
+
+	fmt.Println(response)
+
+	// make sure to handle wrong password response
+	err = bcrypt.CompareHashAndPassword([]byte(response.Password), []byte(Body.Password))
+	if err != nil {
+		fmt.Println(err)
+
+		ctx.Status(http.StatusBadRequest)
+
+		return ctx.JSON(fiber.Map{
+			"message": err.Error(),
+			"status":  http.StatusBadRequest,
+		})
+	}
+
+	/*
+		Here we set Session Cookies back to the client
+	*/
+
+	ctx.Status(http.StatusOK)
+	return ctx.JSON(fiber.Map{
+		"message": "ok",
+		"status":  http.StatusOK,
+	})
+
 }
 
 func (Th *App) member_global_information(user_id int) (MemberGlobalModel, error) {
@@ -150,4 +214,28 @@ func (Th *App) insert_member(Body MemberBody) error {
 	}
 
 	return nil
+}
+
+func (Th *App) get_member_by_column_name(column_name string, value string) (MemberModel, error) {
+
+	if config.Pool == nil {
+		log.Fatal("cannot establish connection")
+	}
+
+	var response MemberModel
+	var sql_query string = fmt.Sprintf("SELECT * FROM Users WHERE %s = $1", column_name)
+
+	err := config.Pool.QueryRow(context.Background(), sql_query, value).Scan(&response.UserID, &response.UserName, &response.EmailAddress,
+		&response.Password, &response.CreatedAt)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return MemberModel{}, fmt.Errorf("user not found")
+		}
+
+		fmt.Println(err)
+		return MemberModel{}, fmt.Errorf("ops something went wrong")
+	}
+
+	return response, nil
 }

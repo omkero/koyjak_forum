@@ -7,8 +7,14 @@ const replyBtn = document.getElementById("create-post-btn");
 const threadCreateBtn = document.getElementById("create-thread-btn");
 
 const singupBtn = document.getElementById("signup-btn");
-const responseBox = document.getElementById("response-box")
-const responseMsg = document.getElementById("resnponse-msg")
+
+const responseBoxError = document.getElementById("response-box-error")
+const responseMsgError = document.getElementById("resnponse-msg-error")
+const responseBoxSuccess = document.getElementById("response-box-success")
+const responseMsgSuccess = document.getElementById("resnponse-msg-success")
+
+const signInBtn = document.getElementById("sginin-btn");
+
 
 if (thModal && thCloseBtn && thAdd) {
 
@@ -73,31 +79,33 @@ if (replyBtn) {
   };
 }
 
-if (singupBtn && responseBox && responseMsg) {
+if (singupBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
   singupBtn.onclick = async () => {
     try {
+
       const registerUsernameInput = document.getElementById("reg-username").value;
       const registerEmailInput = document.getElementById("reg-email").value;
       const registerPasswordInput = document.getElementById("reg-password").value;
 
       if (!registerUsernameInput) {
-        responseBox.style.display = "flex";
-        responseMsg.innerText = "username is required !!";
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = "username is required !!";
         return;
 
       }
+
       if (!registerEmailInput) {
-        responseBox.style.display = "flex";
-        responseMsg.innerText = "email address is required !!";
-        return;
-      }
-      if (!registerPasswordInput) {
-        responseBox.style.display = "flex";
-        responseMsg.innerText = "password is required !!";
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = "email address is required !!";
         return;
       }
 
-      responseBox.style.display = "none";
+      if (!registerPasswordInput) {
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = "password is required !!";
+        return;
+      }
+
       const response = await fetch("/auth/signup", {
         method: "POST",
         headers: {
@@ -110,21 +118,57 @@ if (singupBtn && responseBox && responseMsg) {
         }),
       })
       const data = await response.json();
-      console.log(response.status);
-      console.log(data)
 
       if (response.status !== 201) {
-        responseBox.style.display = "flex";
-        responseMsg.innerHTML = data?.message;
+        responseBoxSuccess.style.display = "none";
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = data?.message;
       }
 
       if (response.status == 201) {
-        window.location.href = "/";
+        responseBoxError.style.display = "none";
+        responseBoxSuccess.style.display = "flex";
+        responseMsgSuccess.innerText = "You have successfully created an account you can login now."
       }
-
-
     } catch (err) {
+      console.error(err)
+    }
+  }
+}
 
+function CloseErrAlert() {
+  responseBoxError.style.display = "none";
+}
+
+function CloseSuccAlert() {
+  responseBoxSuccess.style.display = "none";
+}
+
+if (signInBtn) {
+    signInBtn.onclick = async () => {
+    try {
+
+      const signinEmailInput = document.getElementById("sginin-email").value;
+      const signinPasswordInput = document.getElementById("sginin-password").value;
+
+      const response = await fetch("/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          email_address: signinEmailInput,
+          password: signinPasswordInput
+        }),
+      })
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.status == 201) {
+        window.location.href = "/"
+      }
+    } catch (err) {
       console.error(err)
     }
   }
