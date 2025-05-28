@@ -7,15 +7,40 @@ import (
 type App struct{}
 
 func (Th *App) RootPage(ctx *fiber.Ctx) error {
-	threads, err := Th.get_all_threads()
-	if err != nil {
+	threadsChannel := make(chan ThreadsResult)
+	isAuthChannel := make(chan IsAuthRsult)
+
+	go func() {
+		threads, err := Th.get_all_threads()
+
+		threadsChannel <- ThreadsResult{
+			Threads: threads,
+			Err:     err,
+		}
+	}()
+
+	go func() {
+		member, isAuth, err := Th.is_Auth(ctx)
+		isAuthChannel <- IsAuthRsult{
+			IsAuth: isAuth,
+			Err:    err,
+			Member: member,
+		}
+	}()
+
+	threadsRsult := <-threadsChannel
+	isAuthResult := <-isAuthChannel
+
+	if threadsRsult.Err != nil {
 		return ctx.Render("index", fiber.Map{
-			"Error": err.Error(),
+			"Error": threadsRsult.Err.Error(),
 		})
 	}
 
 	return ctx.Render("index", fiber.Map{
-		"Threads": threads, // ✅ fixed key
+		"Threads": threadsRsult.Threads, // ✅ fixed key
+		"IsAuth":  isAuthResult.IsAuth,
+		"Member":  isAuthResult.Member,
 	})
 }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
 </head>
 <style>
 </style>
+
 <body class="panel-bg">
     <section class="panel-bg h-auto w-full flex flex-col relative">
         <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none;"
@@ -48,12 +50,20 @@
                     <a href="/">
                         <img class="logo-img" src="http://localhost:8080/static/imgs/example-logo.png" />
                     </a>
+
+                    {{ if .IsAuth }}
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-white">welcome user</h1>
+                        <h1 class="text-white">{{ .Member.UserName }}</h1>
+                    </div>
+                    {{ else }}
                     <div class="flex items-center gap-3">
                         <a href="auth/signin" class="p-2 cursor-pointer text-white font-normal">
                             Existing user? Sign In
                         </a>
                         <a href="auth/signup" class="primary-button-design">Sign Up</a>
                     </div>
+                    {{ end }}
                 </div>
                 <div class="w-full flex items-center justify-between main-horizontal-padding">
                     <div class="flex items-center gap-4">
@@ -152,4 +162,5 @@
     </footer>
     <script src="http://localhost:8080/static/js/global.js"></script>
 </body>
+
 </html>

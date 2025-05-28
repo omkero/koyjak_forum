@@ -15,10 +15,10 @@ func MainHandler(Koyjak *fiber.App) {
 	}
 	{
 		Koyjak.Post("/auth/signup", appko.create_member_controller)
-		Koyjak.Get("/auth/signup", appko.SignUpPage)
+		Koyjak.Get("/auth/signup", appko.RedirectIsExist, appko.SignUpPage)
 
 		Koyjak.Post("/auth/signin", appko.signin_member_controller)
-		Koyjak.Get("/auth/signin", appko.SignInPage)
+		Koyjak.Get("/auth/signin", appko.RedirectIsExist, appko.SignInPage)
 	}
 
 }

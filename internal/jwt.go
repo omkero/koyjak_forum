@@ -47,7 +47,7 @@ func JwtVerifySignature(token_string string, secrete_key string) (*jwt.Token, er
 	return token, nil
 }
 
-func ExtractToken(ctx *fiber.Ctx) (UserClaims, error) {
+func ExtractAuthBearerToken(ctx *fiber.Ctx) (UserClaims, error) {
 
 	authorization := ctx.Get("Authorization")
 

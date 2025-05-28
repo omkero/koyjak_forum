@@ -6,13 +6,17 @@ import (
 	"fmt"
 	"koyjak/config"
 	"koyjak/internal/functions"
+	"koyjak/internal/keywords"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -40,6 +44,12 @@ type MemberBody struct {
 type MemberAuthBody struct {
 	EmailAddress string `json:"email_address" binding:"required"`
 	Password     string `json:"password" binding:"required"`
+}
+
+type IsAuthRsult struct {
+	IsAuth bool
+	Err    error
+	Member MemberGlobalModel
 }
 
 func (Th *App) create_member_controller(ctx *fiber.Ctx) error {
@@ -106,6 +116,7 @@ func (Th *App) create_member_controller(ctx *fiber.Ctx) error {
 }
 
 func (Th *App) signin_member_controller(ctx *fiber.Ctx) error {
+
 	var Body MemberAuthBody
 
 	err := ctx.BodyParser(&Body)
@@ -141,24 +152,43 @@ func (Th *App) signin_member_controller(ctx *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(response)
-
 	// make sure to handle wrong password response
 	err = bcrypt.CompareHashAndPassword([]byte(response.Password), []byte(Body.Password))
 	if err != nil {
 		fmt.Println(err)
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			ctx.Status(http.StatusUnauthorized)
+
+			return ctx.JSON(fiber.Map{
+				"message": "Incorrect password",
+				"status":  http.StatusUnauthorized,
+			})
+		}
 
 		ctx.Status(http.StatusBadRequest)
-
 		return ctx.JSON(fiber.Map{
-			"message": err.Error(),
+			"message": "Ops something went wrong",
 			"status":  http.StatusBadRequest,
 		})
+	}
+	sessionKeyScrete := os.Getenv("SESSION_TOKEN_KEY")
+
+	token, err := ParseSessionToken(response.UserID, sessionKeyScrete)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	/*
 		Here we set Session Cookies back to the client
 	*/
+
+	ctx.Cookie(&fiber.Cookie{
+		Name:     keywords.COOKIE_NAME,
+		Value:    token,
+		Path:     "/",
+		HTTPOnly: true,
+		Expires:  time.Now().Add(2 * time.Hour), // Correct usage
+	})
 
 	ctx.Status(http.StatusOK)
 	return ctx.JSON(fiber.Map{
@@ -238,4 +268,47 @@ func (Th *App) get_member_by_column_name(column_name string, value string) (Memb
 	}
 
 	return response, nil
+}
+
+func (Th *App) is_Auth(ctx *fiber.Ctx) (MemberGlobalModel, bool, error) {
+	sessionKeyScrete := os.Getenv("SESSION_TOKEN_KEY")
+	var cook = ctx.Cookies(keywords.COOKIE_NAME)
+
+	if cook == "" {
+		functions.DeleteSessionToken(ctx)
+		return MemberGlobalModel{}, false, fmt.Errorf("not auth")
+	}
+
+	token, err := jwt.Parse(cook, func(token *jwt.Token) (interface{}, error) {
+
+		return []byte(sessionKeyScrete), nil
+	})
+
+	if err != nil {
+		functions.DeleteSessionToken(ctx)
+		return MemberGlobalModel{}, false, fmt.Errorf("not auth")
+	}
+
+	if !token.Valid {
+		functions.DeleteSessionToken(ctx)
+		return MemberGlobalModel{}, false, fmt.Errorf("not auth")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return MemberGlobalModel{}, false, errors.New("token Claims is Not ok")
+	}
+
+	UserID, err := strconv.Atoi(fmt.Sprint(claims["ud"]))
+	if err != nil {
+		return MemberGlobalModel{}, false, err
+	}
+
+	member, err := Th.member_global_information(UserID)
+	if err != nil {
+		return MemberGlobalModel{}, false, err
+
+	}
+
+	return member, true, nil
 }

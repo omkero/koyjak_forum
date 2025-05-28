@@ -131,7 +131,7 @@ if (singupBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
         responseMsgSuccess.innerText = "You have successfully created an account you can login now."
       }
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
   }
 }
@@ -165,11 +165,11 @@ if (signInBtn) {
       const data = await response.json();
       console.log(data);
 
-      if (response.status == 201) {
+      if (response.status == 200) {
         window.location.href = "/"
       }
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
   }
 }

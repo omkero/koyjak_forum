@@ -58,18 +58,50 @@ type ThreadPost struct {
 	CreatedAtSince string            `json:"created_at_since"`
 }
 
+type ThreadsResult struct {
+	Threads []ThreadType
+	Err     error
+}
+
+type ThreadResult struct {
+	Thread ThreadType
+	Err    error
+}
+
 func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	param := ctx.Params("thread")
 	subsParam := strings.Replace(param, "-", " ", -1)
 
-	thread, err := Th.get_thread_by_title(subsParam)
-	if err != nil {
+	isAuthChannel := make(chan IsAuthRsult)
+	threadChannel := make(chan ThreadResult)
+
+	go func() {
+		member, isAuth, err := Th.is_Auth(ctx)
+		isAuthChannel <- IsAuthRsult{
+			IsAuth: isAuth,
+			Err:    err,
+			Member: member,
+		}
+	}()
+
+	go func() {
+		thread, err := Th.get_thread_by_title(subsParam)
+		threadChannel <- ThreadResult{
+			Thread: thread,
+			Err:    err,
+		}
+	}()
+
+	isAuthResult := <-isAuthChannel
+	ThreadResult := <-threadChannel
+
+	if ThreadResult.Err != nil {
 		return ctx.Render("thread/thread", fiber.Map{
-			"Error": err.Error(),
+			"Error": ThreadResult.Err.Error(),
 		})
 	}
 
-	posts, err := Th.thread_posts(thread.ThreadID)
+	posts, err := Th.thread_posts(ThreadResult.Thread.ThreadID)
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Render("thread/thread", fiber.Map{
@@ -78,8 +110,10 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Render("thread/thread", fiber.Map{
-		"Thread": thread,
+		"Thread": ThreadResult.Thread,
 		"Posts":  posts,
+		"IsAuth": isAuthResult.IsAuth,
+		"Member": isAuthResult.Member,
 	})
 }
 
