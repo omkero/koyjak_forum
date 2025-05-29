@@ -86,3 +86,17 @@ func ExtractAuthBearerToken(ctx *fiber.Ctx) (UserClaims, error) {
 
 	return CalimsData, nil
 }
+
+func GenerateThreadToken(thread_id int, secrete_key string) (string, error) {
+	signedtoken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"ud":  thread_id, // thread_id must be stored in token
+		"exp": time.Now().Add(100 * 365 * 24 * time.Hour).Unix(),
+	})
+
+	token, err := signedtoken.SignedString([]byte(secrete_key))
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}

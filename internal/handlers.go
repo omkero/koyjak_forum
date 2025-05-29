@@ -9,9 +9,9 @@ func MainHandler(Koyjak *fiber.App) {
 		Koyjak.Get("/", appko.RootPage)
 	}
 	{
-		Koyjak.Post("/create_thread", appko.post_thread_controller)
+		Koyjak.Post("/create_thread", appko.RedirectIsExist, appko.post_thread_controller)
 		Koyjak.Get("/:thread", appko.ThreadPage)
-		Koyjak.Post("/create_post", appko.post_reply_controller)
+		Koyjak.Post("/create_post", appko.RedirectIsExist, appko.post_reply_controller)
 	}
 	{
 		Koyjak.Post("/auth/signup", appko.create_member_controller)

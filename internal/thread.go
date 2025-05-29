@@ -2,10 +2,12 @@ package internal
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"koyjak/config"
 	"koyjak/internal/functions"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -24,6 +26,7 @@ type PostForm struct {
 	UserID      int    `json:"user_id"`
 	PostContent string `json:"post_content" bindind:"required"`
 	ThreadID    int    `json:"thread_id" bindind:"required"`
+	ThreadToken string `json:"thread_token" bindind:"required"`
 }
 
 type ThreadType struct {
@@ -35,6 +38,7 @@ type ThreadType struct {
 	SafeUrl        string            `json:"safe_url"`
 	Member         MemberGlobalModel `json:"member" binding:"required"`
 	CreatedAtSince string            `json:"created_at_since"`
+	ThreadToken    sql.NullString    `json:"thread_token"`
 }
 
 type ResponseThreadType struct {
@@ -124,12 +128,40 @@ func (Th *App) post_thread_controller(ctx *fiber.Ctx) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	Body.UserID = 34
-	is_inserted, err := Th.insert_thread(Body)
-	if err != nil || !is_inserted {
+
+	isAuthChan := make(chan IsAuthRsult)
+	insertChan := make(chan error)
+
+	go func() {
+		member, isAuth, err := Th.is_Auth(ctx)
+		isAuthChan <- IsAuthRsult{
+			IsAuth: isAuth,
+			Err:    err,
+			Member: member,
+		}
+	}()
+
+	isAuthresult := <-isAuthChan
+	Body.UserID = isAuthresult.Member.UserID
+
+	if isAuthresult.Err != nil {
+		ctx.Status(http.StatusUnauthorized) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "You must be logged-in to create a thread.",
+			"status":   http.StatusUnauthorized,
+		})
+	}
+
+	go func() {
+		_, err := Th.insert_thread(Body)
+		insertChan <- err
+	}()
+
+	isInsertedResult := <-insertChan
+
+	if isInsertedResult != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(is_inserted)
 
 	ctx.Status(http.StatusCreated) // after inserting set the status as created
 	return ctx.JSON(fiber.Map{
@@ -145,7 +177,27 @@ func (Th *App) post_reply_controller(ctx *fiber.Ctx) error {
 		fmt.Println(err)
 	}
 
-	fmt.Println(Body)
+	isAuthChan := make(chan IsAuthRsult)
+	go func() {
+		member, isAuth, err := Th.is_Auth(ctx)
+		isAuthChan <- IsAuthRsult{
+			IsAuth: isAuth,
+			Err:    err,
+			Member: member,
+		}
+	}()
+
+	isAuthresult := <-isAuthChan
+
+	if isAuthresult.Err != nil {
+		ctx.Status(http.StatusUnauthorized) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "You must be logged-in to create a post.",
+			"status":   http.StatusUnauthorized,
+		})
+	}
+
+	Body.UserID = isAuthresult.Member.UserID
 	_, err = Th.insert_post(Body)
 	if err != nil {
 		fmt.Println(err)
@@ -177,7 +229,7 @@ func (Th *App) get_all_threads() ([]ThreadType, error) {
 	for row.Next() {
 		var tempThread ThreadType
 
-		err = row.Scan(&tempThread.ThreadID, &tempThread.UserID, &tempThread.ThreadTitle, &tempThread.ThreadContent, &tempThread.CreatedAt, &tempThread.SafeUrl)
+		err = row.Scan(&tempThread.ThreadID, &tempThread.UserID, &tempThread.ThreadTitle, &tempThread.ThreadContent, &tempThread.CreatedAt, &tempThread.SafeUrl, &tempThread.ThreadToken)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -217,14 +269,14 @@ func (Th *App) get_thread_by_title(thread_title string) (ThreadType, error) {
 
 	var sql_query = `
 	SELECT 
-	   t.thread_id, t.user_id, t.thread_title, t.thread_content, t.created_at, t.safe_url,
+	   t.thread_id, t.user_id, t.thread_title, t.thread_content, t.created_at, t.safe_url, t.thread_token,
 	   u.user_id, u.username, u.email_address, u.created_at
 	FROM Threads t
 	INNER JOIN Users u ON u.user_id = t.user_id WHERE t.thread_title = $1
 	`
 
 	err := config.Pool.QueryRow(context.Background(), sql_query, thread_title).Scan(
-		&thread.ThreadID, &thread.UserID, &thread.ThreadTitle, &thread.ThreadContent, &thread.CreatedAt, &thread.SafeUrl,
+		&thread.ThreadID, &thread.UserID, &thread.ThreadTitle, &thread.ThreadContent, &thread.CreatedAt, &thread.SafeUrl, &thread.ThreadToken,
 		&thread.Member.UserID, &thread.Member.UserName, &thread.Member.EmailAddress, &thread.Member.CreatedAt,
 	)
 	if err != nil {
@@ -246,11 +298,29 @@ func (Th *App) insert_thread(body ThreadForm) (bool, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
+
+	// there is problem here thread not been create fix it
+	var thread_id int
 	var safe_url string = strings.Replace(body.ThreadTitle, " ", "-", -1)
-	var sql_query string = "INSERT INTO Threads (thread_title, user_id, thread_content, safe_url) VALUES ($1, $2, $3, $4)"
-	Exec, err := config.Pool.Exec(context.Background(), sql_query, body.ThreadTitle, body.UserID, body.ThreadContent, safe_url)
+	var sql_query string = `
+	INSERT INTO Threads (thread_title, user_id, thread_content, safe_url) VALUES ($1, $2, $3, $4)
+	RETURNING thread_id
+	`
+
+	err := config.Pool.QueryRow(context.Background(), sql_query, body.ThreadTitle, body.UserID, body.ThreadContent, safe_url).Scan(&thread_id)
 	if err != nil {
 		return false, err
+	}
+	secreteKey := os.Getenv("THREAD_KEY_NAME")
+	threadToken, err := GenerateThreadToken(thread_id, secreteKey)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var update_sql_query string = `UPDATE Threads SET thread_token = $1 WHERE thread_id = $2`
+	Exec, err := config.Pool.Exec(context.Background(), update_sql_query, threadToken, thread_id)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	return Exec.RowsAffected() >= 1, nil
@@ -309,7 +379,6 @@ func (Th *App) insert_post(body PostForm) (bool, error) {
 	}
 
 	body.ThreadID = 141
-	body.UserID = 34
 
 	var sql_query string = "INSERT INTO Posts (thread_id, user_id, post_title, post_content) VALUES ($1, $2, $3, $4)"
 	Exec, err := config.Pool.Exec(context.Background(), sql_query, body.ThreadID, body.UserID, body.PostTitle, body.PostContent)
