@@ -100,3 +100,37 @@ func GenerateThreadToken(thread_id int, secrete_key string) (string, error) {
 
 	return token, nil
 }
+
+func VerifyThreadTokenSignature(token_string string, secrete_key string) (int, error) {
+	token, err := jwt.Parse(token_string, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secrete_key), nil
+	})
+
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenInvalidClaims) {
+			return 0, errors.New("invalid Token Signature")
+		}
+
+		if errors.Is(err, jwt.ErrTokenMalformed) {
+			return 0, errors.New("invalid Token Signature")
+		}
+		fmt.Println(err)
+		return 0, errors.New("ops something went wrong")
+	}
+
+	if !token.Valid {
+		return 0, fmt.Errorf("invalid Token Signature")
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		fmt.Println("not ok")
+		return 0, errors.New("token Claims is Not ok")
+	}
+
+	thread_id, err := strconv.Atoi(fmt.Sprint(claims["ud"]))
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+	return thread_id, nil
+}

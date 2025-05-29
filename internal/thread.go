@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"koyjak/config"
 	"koyjak/internal/functions"
@@ -38,7 +37,7 @@ type ThreadType struct {
 	SafeUrl        string            `json:"safe_url"`
 	Member         MemberGlobalModel `json:"member" binding:"required"`
 	CreatedAtSince string            `json:"created_at_since"`
-	ThreadToken    sql.NullString    `json:"thread_token"`
+	ThreadToken    string            `json:"thread_token"`
 }
 
 type ResponseThreadType struct {
@@ -177,6 +176,30 @@ func (Th *App) post_reply_controller(ctx *fiber.Ctx) error {
 		fmt.Println(err)
 	}
 
+	if Body.PostTitle == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing post_title",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
+	if Body.PostContent == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing post_content",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
+	if Body.ThreadToken == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing thread_token",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
 	isAuthChan := make(chan IsAuthRsult)
 	go func() {
 		member, isAuth, err := Th.is_Auth(ctx)
@@ -197,7 +220,19 @@ func (Th *App) post_reply_controller(ctx *fiber.Ctx) error {
 		})
 	}
 
+	threadSecreteKEy := os.Getenv("THREAD_KEY_NAME")
+	thread_id, err := VerifyThreadTokenSignature(Body.ThreadToken, threadSecreteKEy)
+	if err != nil {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": err.Error(),
+			"status":   http.StatusBadRequest,
+		})
+	}
+
 	Body.UserID = isAuthresult.Member.UserID
+	Body.ThreadID = thread_id
+
 	_, err = Th.insert_post(Body)
 	if err != nil {
 		fmt.Println(err)
@@ -299,6 +334,8 @@ func (Th *App) insert_thread(body ThreadForm) (bool, error) {
 		functions.Failed_db_connection()
 	}
 
+	fmt.Println(body)
+
 	// there is problem here thread not been create fix it
 	var thread_id int
 	var safe_url string = strings.Replace(body.ThreadTitle, " ", "-", -1)
@@ -322,6 +359,8 @@ func (Th *App) insert_thread(body ThreadForm) (bool, error) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	fmt.Println(Exec.RowsAffected())
 
 	return Exec.RowsAffected() >= 1, nil
 }
@@ -377,8 +416,6 @@ func (Th *App) insert_post(body PostForm) (bool, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
-
-	body.ThreadID = 141
 
 	var sql_query string = "INSERT INTO Posts (thread_id, user_id, post_title, post_content) VALUES ($1, $2, $3, $4)"
 	Exec, err := config.Pool.Exec(context.Background(), sql_query, body.ThreadID, body.UserID, body.PostTitle, body.PostContent)
