@@ -84,16 +84,17 @@
         </header>
     </section>
     <section>
-        <div class="main-horizontal-padding py-6 flex flex-col lg:flex-row gap-4">
-            <div class="bg-white material-box-shadow-thin h-auto w-full  flex flex-col rounded-sm">
+        <div class="main-horizontal-padding h-auto py-6 flex flex-col lg:flex-row gap-4">
+
+            <div class="bg-white material-box-shadow-thin h-auto w-full flex flex-col rounded-sm">
                 <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
                     <h1 class="text-white">Discussion Forum</h1>
                     <button id="add-th-btn" class="bg-black p-2 text-white cursor-pointer">Add Thread</button>
                 </div>
-                <div class="flex w-full justify-between gap-4">
+                <div class="flex w-full h-auto justify-between gap-4">
                     {{if .Error}}
                     <div class="flex flex-col w-full h-full">
-                        <div class="flex w-full p-2 items-center bg-white gap-4">
+                        <div class="flex w-full h-full p-2 items-center justify-center bg-white gap-4">
                             <h1>{{ .Error }}</h1>
                         </div>
                         <span class="bg-gray-200 w-full h-[1px]"></span>
@@ -110,7 +111,7 @@
                                 <a href="{{ .SafeUrl }}" class=" text-violet-600">{{ .ThreadTitle }}</a>
                                 <div class="w-full flex justify-between">
                                     <p class="text-gray-500 text-sm">{{ .ThreadContent }}</p>
-                                    <p class="underline text-sm cursor-pointer" data-time="{{ .CreatedAt }}">{{
+                                    <p class="text-sm" data-time="{{ .CreatedAt }}">{{
                                         .CreatedAtSince }}</p>
                                 </div>
                             </div>
@@ -119,7 +120,6 @@
                         {{ end }}
                     </div>
                     {{ end }}
-
                 </div>
             </div>
 
@@ -128,23 +128,60 @@
                     <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
                         <h1 class="text-white">Recents</h1>
                     </div>
+                    {{ if .Error }}
                     <div class="p-2 bg-white">
-                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus
-                            laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam,
-                            eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                        <p class="text-xs">{{ .Error }}</p>
                     </div>
+                    {{ else }}
+                    {{ range .Threads }}
+                    <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+
+                        <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+                            {{ truncateFisrt .Member.UserName }}
+                        </span>
+
+                        <div class="flex flex-col gap-1">
+                            <h1 class="text-base text-violet-600 cursor-pointer"> {{ truncate .ThreadTitle 30 }} </h1>
+                            <dv class="flex flex-wrap items-center gap-2">
+                                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
+                                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
+                            </dv>
+                        </div>
+                    </div>
+
+                    {{ end }}
+                    {{ end }}
                 </div>
                 <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
                     <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
                         <h1 class="text-white">Latest Posts</h1>
                     </div>
+                    {{ if .LatestPostsError }}
                     <div class="p-2 bg-white">
-                        <p class="text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab accusamus
-                            laudantium inventore! Nisi amet hic quo cupiditate numquam atque illum maiores veniam,
-                            eveniet quae, asperiores optio quidem neque facilis ratione!</p>
+                        <p class="text-xs">{{ .LatestPostsError }}</p>
                     </div>
+                    {{ else }}
+                    {{ range .LatestPosts }}
+                    <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+
+                        <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+                            {{ truncateFisrt .Member.UserName }}
+                        </span>
+
+                        <div class="flex flex-col gap-1">
+                            <h1 class="text-base text-violet-600 cursor-pointer"> {{ truncate .PostTitle 30 }} </h1>
+                            <dv class="flex flex-wrap items-center gap-2">
+                                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
+                                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
+                            </dv>
+                        </div>
+                    </div>
+
+                    {{ end }}
+                    {{ end }}
                 </div>
             </div>
+
         </div>
     </section>
     <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">

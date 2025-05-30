@@ -102,7 +102,8 @@
           </div>
           <button id="add-th-btn" class="primary-button-design">Reply</button>
         </div>
-        <div id="th-parent" data-thread-tk="{{ .Thread.ThreadToken }}" class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
+        <div id="th-parent" data-thread-tk="{{ .Thread.ThreadToken }}"
+          class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
           <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
             <div class="w-full flex items-center justify-center">
               <h1 class="text-black text-xl font-bold">
@@ -133,6 +134,11 @@
             </content>
           </div>
         </div>
+        {{ if .PostsError }}
+        <div class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm p-3 items-center justify-center">
+          <h1> {{ .PostsError }} </h1>
+        </div>
+        {{ else }}
         {{ range .Posts }}
         <div class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
           <div class="h-full flex flex-col p-4 bg-neutral-200 w-60 gap-3">
@@ -164,8 +170,10 @@
             </content>
           </div>
         </div>
+          {{ end }}
         {{ end }}
       </div>
+      {{ end }}
       <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
         <div class="material-box-shadow-thin">
           <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
@@ -196,7 +204,6 @@
       </div>
     </div>
   </section>
-  {{ end }}
 
   <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">
     <div class="flex gap-3">

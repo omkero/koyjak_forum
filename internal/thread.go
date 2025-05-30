@@ -71,6 +71,11 @@ type ThreadResult struct {
 	Err    error
 }
 
+type PostsResult struct {
+	Posts []ThreadPost
+	Err   error
+}
+
 func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	param := ctx.Params("thread")
 	subsParam := strings.Replace(param, "-", " ", -1)
@@ -100,15 +105,23 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 
 	if ThreadResult.Err != nil {
 		return ctx.Render("thread/thread", fiber.Map{
-			"Error": ThreadResult.Err.Error(),
+			"Thread": ThreadResult.Thread,
+			"IsAuth": isAuthResult.IsAuth,
+			"Member": isAuthResult.Member,
+			"Error":  ThreadResult.Err.Error(),
 		})
 	}
 
 	posts, err := Th.thread_posts(ThreadResult.Thread.ThreadID)
 	if err != nil {
 		fmt.Println(err)
+
 		return ctx.Render("thread/thread", fiber.Map{
-			"Error": err.Error(),
+			"Thread":     ThreadResult.Thread,
+			"Posts":      posts,
+			"IsAuth":     isAuthResult.IsAuth,
+			"Member":     isAuthResult.Member,
+			"PostsError": err.Error(),
 		})
 	}
 
@@ -245,14 +258,15 @@ func (Th *App) post_reply_controller(ctx *fiber.Ctx) error {
 	})
 }
 
-func (Th *App) get_all_threads() ([]ThreadType, error) {
+// make sure to inner join member to each one
+func (Th *App) get_all_threads(limit int) ([]ThreadType, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
 
 	var threads []ThreadType
-	var sql_query string = "SELECT * FROM Threads ORDER BY created_at DESC"
-	row, err := config.Pool.Query(context.Background(), sql_query)
+	var sql_query string = "SELECT * FROM Threads ORDER BY created_at DESC LIMIT $1"
+	row, err := config.Pool.Query(context.Background(), sql_query, limit)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return []ThreadType{}, fmt.Errorf("threads not found !!")
@@ -425,4 +439,52 @@ func (Th *App) insert_post(body PostForm) (bool, error) {
 	}
 
 	return Exec.RowsAffected() >= 1, nil
+}
+
+func (Th *App) latest_posts() ([]ThreadPost, error) {
+	if config.Pool == nil {
+		functions.Failed_db_connection()
+	}
+
+	var posts []ThreadPost
+	sql_query := `
+        SELECT 
+        	p.post_id, p.thread_id, p.user_id, p.post_title, p.post_content, p.created_at,
+        	u.user_id, u.username, u.email_address, u.created_at
+        FROM Posts p
+        INNER JOIN Users u ON u.user_id = p.user_id
+        ORDER BY p.created_at DESC
+        LIMIT 5
+	`
+
+	rows, err := config.Pool.Query(context.Background(), sql_query)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return []ThreadPost{}, fmt.Errorf("post not found.")
+		}
+		fmt.Println(err)
+		return []ThreadPost{}, functions.Something_wnt_wrong()
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post ThreadPost
+
+		err = rows.Scan(
+			&post.PostID, &post.ThreadID, &post.UserID, &post.PostTitle, &post.PostContent, &post.CreatedAt,
+			&post.Member.UserID, &post.Member.UserName, &post.Member.EmailAddress, &post.Member.CreatedAt,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return []ThreadPost{}, functions.Something_wnt_wrong()
+		}
+
+		t := post.CreatedAt
+		date := functions.TimeAgo(t)
+		post.CreatedAtSince = date
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
 }

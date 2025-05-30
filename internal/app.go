@@ -9,9 +9,10 @@ type App struct{}
 func (Th *App) RootPage(ctx *fiber.Ctx) error {
 	threadsChannel := make(chan ThreadsResult)
 	isAuthChannel := make(chan IsAuthRsult)
+	latestPostsChannel := make(chan PostsResult)
 
 	go func() {
-		threads, err := Th.get_all_threads()
+		threads, err := Th.get_all_threads(5)
 
 		threadsChannel <- ThreadsResult{
 			Threads: threads,
@@ -28,8 +29,18 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 		}
 	}()
 
-	threadsRsult := <-threadsChannel
+	go func() {
+		latest_posts, err := Th.latest_posts()
+
+		latestPostsChannel <- PostsResult{
+			Posts: latest_posts,
+			Err:   err,
+		}
+	}()
+
 	isAuthResult := <-isAuthChannel
+	threadsRsult := <-threadsChannel
+	latestPostsResult := <-latestPostsChannel
 
 	if threadsRsult.Err != nil {
 		return ctx.Render("index", fiber.Map{
@@ -37,10 +48,20 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if latestPostsResult.Err != nil {
+		return ctx.Render("index", fiber.Map{
+			"Threads":          threadsRsult.Threads,
+			"IsAuth":           isAuthResult.IsAuth,
+			"Member":           isAuthResult.Member,
+			"LatestPostsError": latestPostsResult.Err.Error(),
+		})
+	}
+
 	return ctx.Render("index", fiber.Map{
-		"Threads": threadsRsult.Threads, // ✅ fixed key
-		"IsAuth":  isAuthResult.IsAuth,
-		"Member":  isAuthResult.Member,
+		"Threads":     threadsRsult.Threads,
+		"IsAuth":      isAuthResult.IsAuth,
+		"Member":      isAuthResult.Member,
+		"LatestPosts": latestPostsResult.Posts,
 	})
 }
 
