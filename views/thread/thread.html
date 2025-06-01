@@ -20,7 +20,7 @@
         <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
           <div class="w-full flex items-center justify-between">
             <h1>Post</h1>
-            <button id="close-th-btn" class="cursor-pointer">X</button>
+            <button id="close-th-btn" class="cursor-pointer">&#x2715;</button>
           </div>
           <div class="flex flex-col gap-3">
             <p>Title</p>
@@ -36,7 +36,7 @@
           </div>
 
           <div class="flex">
-            <button id="create-post-btn" class="primary-button-design">
+            <button id="create-post-btn" class="primary-button-design w-full">
               Reply
             </button>
           </div>
@@ -54,6 +54,9 @@
           <div class="flex items-center gap-3">
             <h1 class="text-white">welcome user</h1>
             <h1 class="text-white">{{ .Member.UserName }}</h1>
+            <form method="post" action="/auth/session_logout">
+              <button class="primary-button-design" type="submit">Log Out</button>
+            </form>
           </div>
           {{ else }}
           <div class="flex items-center gap-3">
@@ -83,11 +86,12 @@
   </section>
 
   <section class="main-horizontal-padding">
-    <div class="tt  py-6 flex  flex-col lg:flex-row gap-4">
-      {{ if .Error}}
+
+    <div class="  py-6 flex  flex-col lg:flex-row gap-4">
+      {{ if .ThreadError}}
       <div class="flex flex-col gap-4 w-full">
         <div class="bg-white h-96 flex items-center justify-center">
-          <h1>{{ .Error }}</h1>
+          <h1>{{ .ThreadError }}</h1>
         </div>
       </div>
       {{ else }}
@@ -100,7 +104,11 @@
             </div>
             <h1 class="text-white">{{ .Thread.ThreadTitle }}</h1>
           </div>
+          {{ if .IsAuth }}
           <button id="add-th-btn" class="primary-button-design">Reply</button>
+          {{ else }}
+          <a href="/auth/signin" class=" primary-button-design">Reply</a>
+          {{ end }}
         </div>
         <div id="th-parent" data-thread-tk="{{ .Thread.ThreadToken }}"
           class="bg-white material-box-shadow-thin h-auto w-full flex rounded-sm">
@@ -170,39 +178,73 @@
             </content>
           </div>
         </div>
-          {{ end }}
+        {{ end }}
         {{ end }}
       </div>
       {{ end }}
-      <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
-        <div class="material-box-shadow-thin">
+
+      <div class="flex flex-row lg:flex-col  gap-7 w-full lg:w-96">
+        <div class="material-box-shadow-thin w-full h-auto">
           <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-            <h1 class="text-white">Recents</h1>
+            <h1 class="text-white">Recents Threads</h1>
           </div>
+          {{ if .ThreadsError }}
           <div class="p-2 bg-white">
-            <p class="text-xs">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
-              accusamus laudantium inventore! Nisi amet hic quo cupiditate
-              numquam atque illum maiores veniam, eveniet quae, asperiores
-              optio quidem neque facilis ratione!
-            </p>
+            <p class="text-xs">{{ .ThreadsError }}</p>
           </div>
+          {{ else }}
+          {{ range .Threads }}
+          <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+
+            <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+              {{ truncateFisrt .Member.UserName }}
+            </span>
+
+            <div class="flex flex-col gap-1">
+              <a href="{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer"> {{ truncate .ThreadTitle 30 }}
+              </a>
+              <dv class="flex flex-wrap items-center gap-2">
+                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
+                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
+              </dv>
+            </div>
+          </div>
+
+          {{ end }}
+          {{ end }}
         </div>
-        <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
+        <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin w-full h-auto">
           <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
             <h1 class="text-white">Latest Posts</h1>
           </div>
+          {{ if .LatestPostsError }}
           <div class="p-2 bg-white">
-            <p class="text-xs">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
-              accusamus laudantium inventore! Nisi amet hic quo cupiditate
-              numquam atque illum maiores veniam, eveniet quae, asperiores
-              optio quidem neque facilis ratione!
-            </p>
+            <p class="text-xs">{{ .LatestPostsError }}</p>
           </div>
+          {{ else }}
+          {{ range .LatestPosts }}
+          <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+
+            <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+              {{ truncateFisrt .Member.UserName }}
+            </span>
+
+            <div class="flex flex-col gap-1">
+              <h1 class="text-base text-violet-600 cursor-pointer"> {{ truncate .PostTitle 30 }} </h1>
+              <dv class="flex flex-wrap items-center gap-2">
+                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
+                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
+              </dv>
+            </div>
+          </div>
+
+          {{ end }}
+          {{ end }}
         </div>
       </div>
     </div>
+
+
   </section>
 
   <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">
@@ -214,8 +256,9 @@
       <a class="text-sm text-gray-700" href="#">TOS</a>
       <a class="text-sm text-gray-700" href="#">FTC</a>
     </div>
-    <div>
-      <p class="text-xs text-zinc-400">Powered by Invision Community</p>
+    <div class="flex items-center gap-1">
+      <p class="text-xs text-zinc-400">Forum v0.0.1 Powered by</p>
+      <a target="_blank" class="hover:underline text-xs text-violet-600" href="https://github.com/omkero">omkero</a>
     </div>
   </footer>
 

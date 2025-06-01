@@ -82,6 +82,8 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 
 	isAuthChannel := make(chan IsAuthRsult)
 	threadChannel := make(chan ThreadResult)
+	latestPostsChannel := make(chan PostsResult)
+	threadsChannel := make(chan ThreadsResult)
 
 	go func() {
 		member, isAuth, err := Th.is_Auth(ctx)
@@ -100,36 +102,82 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 		}
 	}()
 
+	go func() {
+		latest_posts, err := Th.latest_posts()
+
+		latestPostsChannel <- PostsResult{
+			Posts: latest_posts,
+			Err:   err,
+		}
+	}()
+
+	go func() {
+		threads, err := Th.get_all_threads(5)
+
+		threadsChannel <- ThreadsResult{
+			Threads: threads,
+			Err:     err,
+		}
+	}()
+
 	isAuthResult := <-isAuthChannel
 	ThreadResult := <-threadChannel
+	latestPostsResult := <-latestPostsChannel
+	threadsRsult := <-threadsChannel
 
 	if ThreadResult.Err != nil {
 		return ctx.Render("thread/thread", fiber.Map{
-			"Thread": ThreadResult.Thread,
-			"IsAuth": isAuthResult.IsAuth,
-			"Member": isAuthResult.Member,
-			"Error":  ThreadResult.Err.Error(),
+			"Thread":      ThreadResult.Thread,
+			"Threads":     threadsRsult.Threads,
+			"IsAuth":      isAuthResult.IsAuth,
+			"Member":      isAuthResult.Member,
+			"ThreadError": ThreadResult.Err.Error(),
+			"LatestPosts": latestPostsResult.Posts,
 		})
 	}
 
 	posts, err := Th.thread_posts(ThreadResult.Thread.ThreadID)
 	if err != nil {
-		fmt.Println(err)
-
 		return ctx.Render("thread/thread", fiber.Map{
-			"Thread":     ThreadResult.Thread,
-			"Posts":      posts,
-			"IsAuth":     isAuthResult.IsAuth,
-			"Member":     isAuthResult.Member,
-			"PostsError": err.Error(),
+			"Thread":      ThreadResult.Thread,
+			"Threads":     threadsRsult.Threads,
+			"IsAuth":      isAuthResult.IsAuth,
+			"Member":      isAuthResult.Member,
+			"PostsError":  err.Error(),
+			"LatestPosts": latestPostsResult.Posts,
+		})
+	}
+
+	if latestPostsResult.Err != nil {
+		return ctx.Render("thread/thread", fiber.Map{
+			"Thread":  ThreadResult.Thread,
+			"Threads": threadsRsult.Threads,
+
+			"Posts":            posts,
+			"IsAuth":           isAuthResult.IsAuth,
+			"Member":           isAuthResult.Member,
+			"LatestPostsError": latestPostsResult.Err.Error(),
+		})
+	}
+
+	if threadsRsult.Err != nil {
+		return ctx.Render("thread/thread", fiber.Map{
+			"Thread":       ThreadResult.Thread,
+			"Posts":        posts,
+			"IsAuth":       isAuthResult.IsAuth,
+			"Member":       isAuthResult.Member,
+			"ThreadsError": threadsRsult.Err.Error(),
+			"LatestPosts":  latestPostsResult.Posts,
 		})
 	}
 
 	return ctx.Render("thread/thread", fiber.Map{
-		"Thread": ThreadResult.Thread,
-		"Posts":  posts,
-		"IsAuth": isAuthResult.IsAuth,
-		"Member": isAuthResult.Member,
+		"Thread":      ThreadResult.Thread,
+		"Threads":     threadsRsult.Threads,
+		"Posts":       posts,
+		"IsAuth":      isAuthResult.IsAuth,
+		"Member":      isAuthResult.Member,
+		"LatestPosts": latestPostsResult.Posts,
 	})
 }
 
@@ -332,7 +380,6 @@ func (Th *App) get_thread_by_title(thread_title string) (ThreadType, error) {
 		if err == pgx.ErrNoRows {
 			return ThreadType{}, fmt.Errorf("thread not found.")
 		}
-		fmt.Println(err)
 		return ThreadType{}, functions.Something_wnt_wrong()
 	}
 
@@ -347,8 +394,6 @@ func (Th *App) insert_thread(body ThreadForm) (bool, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
-
-	fmt.Println(body)
 
 	// there is problem here thread not been create fix it
 	var thread_id int

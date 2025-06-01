@@ -98,7 +98,6 @@ func (Th *App) create_member_controller(ctx *fiber.Ctx) error {
 
 	err = Th.insert_member(Body)
 	if err != nil {
-		fmt.Println(err)
 		ctx.Status(http.StatusBadRequest)
 
 		return ctx.JSON(fiber.Map{
@@ -155,7 +154,6 @@ func (Th *App) signin_member_controller(ctx *fiber.Ctx) error {
 	// make sure to handle wrong password response
 	err = bcrypt.CompareHashAndPassword([]byte(response.Password), []byte(Body.Password))
 	if err != nil {
-		fmt.Println(err)
 		if err == bcrypt.ErrMismatchedHashAndPassword {
 			ctx.Status(http.StatusUnauthorized)
 
@@ -196,6 +194,13 @@ func (Th *App) signin_member_controller(ctx *fiber.Ctx) error {
 		"status":  http.StatusOK,
 	})
 
+}
+
+func (Th *App) logout_session_controller(ctx *fiber.Ctx) error {
+	// delete token and redirect
+	functions.DeleteSessionToken(ctx)
+
+	return ctx.Redirect("/")
 }
 
 func (Th *App) member_global_information(user_id int) (MemberGlobalModel, error) {

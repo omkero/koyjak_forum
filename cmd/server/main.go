@@ -5,6 +5,7 @@ import (
 	"koyjak/internal"
 	"koyjak/internal/functions"
 	"log"
+	"runtime"
 
 	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
@@ -13,12 +14,15 @@ import (
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	engine := html.New("./views", ".html")
 	engine.AddFunc("truncate", functions.Truncate)
 	engine.AddFunc("truncateFisrt", functions.TruncateFirstLetter)
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:   engine,
+		Prefork: true, // take advantage of multiple CPU cores
 	})
 
 	err := godotenv.Load()

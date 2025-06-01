@@ -14,6 +14,8 @@ func MainHandler(Koyjak *fiber.App) {
 		Koyjak.Post("/create_post", appko.post_reply_controller)
 	}
 	{
+		Koyjak.Post("/auth/session_logout", appko.logout_session_controller)
+
 		Koyjak.Post("/auth/signup", appko.create_member_controller)
 		Koyjak.Get("/auth/signup", appko.RedirectIsExist, appko.SignUpPage)
 

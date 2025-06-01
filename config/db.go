@@ -26,7 +26,7 @@ func InitDB() {
 		// warning don use raw postgresql path like this use .env
 		Pool, err = pgxpool.New(context.Background(), databaseURL)
 		if err != nil {
-			log.Fatalf("Failed to initialize database connection pool: %v", err)
+			log.Println("Error %v", err)
 		}
 
 		log.Println("Database connection pool initialized")

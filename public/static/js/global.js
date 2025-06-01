@@ -16,11 +16,11 @@ const replyBtn = document.getElementById("create-post-btn");
 const threadCreateBtn = document.getElementById("create-thread-btn");
 const thParent = document.getElementById("th-parent");
 const signupBtn = document.getElementById("signup-btn");
+const signInBtn = document.getElementById("sginin-btn");
 const responseBoxError = document.getElementById("response-box-error");
 const responseMsgError = document.getElementById("resnponse-msg-error");
 const responseBoxSuccess = document.getElementById("response-box-success");
 const responseMsgSuccess = document.getElementById("resnponse-msg-success");
-const signInBtn = document.getElementById("sginin-btn");
 if (thModal && thCloseBtn && thAdd) {
     thAdd.addEventListener("click", () => {
         thModal.style.display = "flex";
@@ -81,6 +81,47 @@ if (replyBtn && thParent) {
         }
     });
 }
+if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
+    signInBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const emailInputHtml = document.getElementById("sginin-email");
+            const passwordInputHtml = document.getElementById("sginin-password");
+            if (!emailInputHtml || !passwordInputHtml)
+                return;
+            const emailInput = emailInputHtml.value;
+            const passwordInput = passwordInputHtml.value;
+            if (!emailInput) {
+                responseBoxError.style.display = "flex";
+                responseMsgError.innerText = "email is required !!";
+                return;
+            }
+            if (!passwordInput) {
+                responseBoxError.style.display = "flex";
+                responseMsgError.innerText = "password is required !!";
+                return;
+            }
+            const response = yield fetch("/auth/signin", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                },
+                body: JSON.stringify({ email_address: emailInput, password: passwordInput }),
+            });
+            const data = yield response.json();
+            if (response.status === 200) {
+                window.location.href = "/";
+            }
+            if (response.status !== 200) {
+                responseBoxSuccess.style.display = "none";
+                responseBoxError.style.display = "flex";
+                responseMsgError.innerText = data === null || data === void 0 ? void 0 : data.message;
+            }
+        }
+        catch (err) {
+            // console.error(err);
+        }
+    });
+}
 if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
     signupBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -127,7 +168,7 @@ if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
             }
         }
         catch (err) {
-            console.error(err);
+            //console.error(err);
         }
     });
 }
@@ -138,31 +179,4 @@ function CloseErrAlert() {
 function CloseSuccAlert() {
     if (responseBoxSuccess)
         responseBoxSuccess.style.display = "none";
-}
-if (signInBtn) {
-    signInBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const emailInput = document.getElementById("sginin-email");
-            const passwordInput = document.getElementById("sginin-password");
-            if (!emailInput || !passwordInput)
-                return;
-            const email_address = emailInput.value;
-            const password = passwordInput.value;
-            const response = yield fetch("/auth/signin", {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body: JSON.stringify({ email_address, password }),
-            });
-            const data = yield response.json();
-            console.log(data);
-            if (response.status === 200) {
-                window.location.href = "/";
-            }
-        }
-        catch (err) {
-            console.error(err);
-        }
-    });
 }

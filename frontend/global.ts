@@ -7,13 +7,13 @@ const threadCreateBtn = document.getElementById("create-thread-btn") as HTMLButt
 const thParent = document.getElementById("th-parent") as HTMLElement | null;
 
 const signupBtn = document.getElementById("signup-btn") as HTMLButtonElement | null;
-
-const responseBoxError = document.getElementById("response-box-error") as HTMLElement | null;
-const responseMsgError = document.getElementById("resnponse-msg-error") as HTMLElement | null;
-const responseBoxSuccess = document.getElementById("response-box-success") as HTMLElement | null;
-const responseMsgSuccess = document.getElementById("resnponse-msg-success") as HTMLElement | null;
-
 const signInBtn = document.getElementById("sginin-btn") as HTMLButtonElement | null;
+
+const responseBoxError: any = document.getElementById("response-box-error") as HTMLElement | null;
+const responseMsgError: any = document.getElementById("resnponse-msg-error") as HTMLElement | null;
+const responseBoxSuccess: any = document.getElementById("response-box-success") as HTMLElement | null;
+const responseMsgSuccess: any = document.getElementById("resnponse-msg-success") as HTMLElement | null;
+
 
 if (thModal && thCloseBtn && thAdd) {
   thAdd.addEventListener("click", () => {
@@ -87,6 +87,56 @@ if (replyBtn && thParent) {
   };
 }
 
+if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
+
+  signInBtn.onclick = async () => {
+    try {
+      const emailInputHtml = document.getElementById("sginin-email") as HTMLInputElement | null;
+      const passwordInputHtml = document.getElementById("sginin-password") as HTMLInputElement | null;
+
+      if (!emailInputHtml || !passwordInputHtml) return;
+
+      const emailInput = emailInputHtml.value
+      const passwordInput = passwordInputHtml.value
+
+
+      if (!emailInput) {
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = "email is required !!";
+        return;
+      }
+
+      if (!passwordInput) {
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = "password is required !!";
+        return;
+      }
+
+      const response = await fetch("/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ email_address: emailInput, password: passwordInput }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        window.location.href = "/";
+      }
+      if (response.status !== 200) {
+        responseBoxSuccess.style.display = "none";
+        responseBoxError.style.display = "flex";
+        responseMsgError.innerText = data?.message;
+      }
+    } catch (err) {
+     // console.error(err);
+    }
+  };
+}
+
+
 if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
   signupBtn.onclick = async () => {
     try {
@@ -138,7 +188,7 @@ if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
         responseMsgSuccess.innerText = "You have successfully created an account. You can login now.";
       }
     } catch (err) {
-      console.error(err);
+      //console.error(err);
     }
   };
 }
@@ -151,33 +201,3 @@ function CloseSuccAlert() {
   if (responseBoxSuccess) responseBoxSuccess.style.display = "none";
 }
 
-if (signInBtn) {
-  signInBtn.onclick = async () => {
-    try {
-      const emailInput = document.getElementById("sginin-email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("sginin-password") as HTMLInputElement | null;
-
-      if (!emailInput || !passwordInput) return;
-
-      const email_address = emailInput.value;
-      const password = passwordInput.value;
-
-      const response = await fetch("/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ email_address, password }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (response.status === 200) {
-        window.location.href = "/";
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-}

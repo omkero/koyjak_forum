@@ -21,7 +21,7 @@
                 <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
                     <div class="w-full flex items-center justify-between">
                         <h1>Login</h1>
-                        <button id="close-th-btn" class="cursor-pointer">X</button>
+                        <button id="close-th-btn" class="cursor-pointer">&#x2715;</button>
                     </div>
                     <div class="flex flex-col gap-3">
                         <p>Title</p>
@@ -38,8 +38,8 @@
                     </div>
 
                     <div class="flex">
-                        <button id="create-thread-btn" class="bg-black cursor-pointer text-white p-2 rounded-sm w-full"
-                            type="submit">Sign In</button>
+                        <button id="create-thread-btn" class="primary-button-design w-full" type="submit">Create
+                            Thread</button>
                     </div>
                 </div>
             </div>
@@ -55,6 +55,9 @@
                     <div class="flex items-center gap-3">
                         <h1 class="text-white">welcome user</h1>
                         <h1 class="text-white">{{ .Member.UserName }}</h1>
+                        <form method="post" action="/auth/session_logout">
+                            <button class="primary-button-design" type="submit">Log Out</button>
+                        </form>
                     </div>
                     {{ else }}
                     <div class="flex items-center gap-3">
@@ -89,7 +92,11 @@
             <div class="bg-white material-box-shadow-thin h-auto w-full flex flex-col rounded-sm">
                 <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
                     <h1 class="text-white">Discussion Forum</h1>
-                    <button id="add-th-btn" class="bg-black p-2 text-white cursor-pointer">Add Thread</button>
+                    {{ if .IsAuth }}
+                    <button id="add-th-btn" class=" primary-button-design">Add Thread</button>
+                    {{ else }}
+                    <a href="/auth/signin" class=" primary-button-design">Add Thread</a>
+                    {{ end }}
                 </div>
                 <div class="flex w-full h-auto justify-between gap-4">
                     {{if .Error}}
@@ -124,9 +131,9 @@
             </div>
 
             <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
-                <div class="material-box-shadow-thin ">
+                <div class="material-box-shadow-thin w-full">
                     <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-                        <h1 class="text-white">Recents</h1>
+                        <h1 class="text-white">Recents Threads</h1>
                     </div>
                     {{ if .Error }}
                     <div class="p-2 bg-white">
@@ -136,12 +143,14 @@
                     {{ range .Threads }}
                     <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
 
-                        <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+                        <span
+                            class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
                             {{ truncateFisrt .Member.UserName }}
                         </span>
 
                         <div class="flex flex-col gap-1">
-                            <h1 class="text-base text-violet-600 cursor-pointer"> {{ truncate .ThreadTitle 30 }} </h1>
+                            <a href="{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer"> {{ truncate
+                                .ThreadTitle 30 }} </a>
                             <dv class="flex flex-wrap items-center gap-2">
                                 <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
                                 <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
@@ -152,7 +161,7 @@
                     {{ end }}
                     {{ end }}
                 </div>
-                <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin">
+                <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin w-full">
                     <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
                         <h1 class="text-white">Latest Posts</h1>
                     </div>
@@ -164,7 +173,8 @@
                     {{ range .LatestPosts }}
                     <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
 
-                        <span class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+                        <span
+                            class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
                             {{ truncateFisrt .Member.UserName }}
                         </span>
 
@@ -193,8 +203,10 @@
             <a class="text-sm text-gray-700" href="#">TOS</a>
             <a class="text-sm text-gray-700" href="#">FTC</a>
         </div>
-        <div>
-            <p class="text-xs text-zinc-400">Powered by Invision Community</p>
+        <div class="flex items-center gap-1">
+            <p class="text-xs text-zinc-400">Forum v0.0.1 Powered by</p>
+            <a target="_blank" class="hover:underline text-xs text-violet-600"
+                href="https://github.com/omkero">omkero</a>
         </div>
     </footer>
     <script src="http://localhost:8080/static/js/global.js"></script>
