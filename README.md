@@ -18,14 +18,46 @@ sudo systemctl enable postgresql
 
 sudo systemctl start postgresql
 
-## Log in to the PostgreSQL command-line interface:
-sudo -u postgres psql
-
-Then run: CREATE DATABASE koyjak;
-
 ```
 
-## 🔄 Step 3: Load Your Schema
+## 🔐 Step 3: Login and Configure PostgreSQL Authentication
+Login to postgresql and create db
+
+```bash
+sudo -u postgres psql
+## if sudo -u postgres psql not working or ask for password and still wrong follow next step
+```
+
+Edit the pg_hba.conf file to allow password-based local access:
+
+```bash
+sudo nano /etc/postgresql/*/main/pg_hba.conf
+```
+
+Update or add this :
+```bash
+# Allow local connections with MD5 password authentication
+local   all             all                                     md5
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+
+# Replication settings (optional)
+local   replication     all                                     peer
+host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256
+```
+restart postgresql
+```bash
+sudo systemctl restart postgresql
+```
+
+create database
+```bash
+## write 
+CREATE DATABASE koyjak;
+```
+
+## 🔄 Step 4: Load Your Schema
 
 Use pg_restore to import your SQL dump:
 ```bash
@@ -38,30 +70,6 @@ sudo -u postgres psql
 \c koyjak
 ```
 
-## 🔐 Step 4: Configure PostgreSQL Authentication
-
-Edit the pg_hba.conf file to allow password-based local access:
-
-```bash
-sudo nano /etc/postgresql/*/main/pg_hba.conf
-
-Update or add this :
-
-# Allow local connections with MD5 password authentication
-local   all             all                                     md5
-host    all             all             127.0.0.1/32            md5
-host    all             all             ::1/128                 md5
-
-# Replication settings (optional)
-local   replication     all                                     peer
-host    replication     all             127.0.0.1/32            scram-sha-256
-host    replication     all             ::1/128                 scram-sha-256
-
-Save and exit, then restart PostgreSQL:
-
-sudo systemctl restart postgresql
-
-```
 ## 🧠 Step 5: Tune Linux Kernel for Max Connections
 
 To increase system semaphore limits for PostgreSQL:
