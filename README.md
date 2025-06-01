@@ -51,11 +51,15 @@ restart postgresql
 sudo systemctl restart postgresql
 ```
 
-create database
+no try to login and create database
 ```bash
+sudo -u postgres psql
+
 ## write 
 CREATE DATABASE koyjak;
 ```
+
+now you have created database
 
 ## 🔄 Step 4: Load Your Schema
 
