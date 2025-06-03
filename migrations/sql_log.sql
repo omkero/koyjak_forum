@@ -33,3 +33,17 @@ insert into Users (username, email_address, pwd)
 values ('koyjak', 'koyjak@soyo.org', 'soyjackos');
 
 select * from Users;
+
+------------------------------------------------------------
+
+CREATE table forums (
+  forum_id SERIAL primary key,
+  forum_category varchar(255) not null,
+  forum_title varchar(255) not null,
+  forum_description text not null,
+  threads_count bigint not null,
+  posts_count bigint not null,
+  created_at timestamptz default now()
+);
+
+select * from forums;

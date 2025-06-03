@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -75,6 +77,28 @@ func (Th *App) SignInPage(ctx *fiber.Ctx) error {
 
 func (Th *App) ThreadPage(ctx *fiber.Ctx) error {
 	return Th.get_thread_controller(ctx)
+}
+
+func (Th *App) ForumPage(ctx *fiber.Ctx) error {
+	isAuthChannel := make(chan IsAuthRsult)
+
+	go func() {
+		member, isAuth, err := Th.is_Auth(ctx)
+		isAuthChannel <- IsAuthRsult{
+			IsAuth: isAuth,
+			Err:    err,
+			Member: member,
+		}
+	}()
+
+	isAuthResult := <-isAuthChannel
+	if isAuthResult.Err != nil {
+		fmt.Println(isAuthResult.Err)
+	}
+	return ctx.Render("forum/forum", fiber.Map{
+		"IsAuth": isAuthResult.IsAuth,
+		"Member": isAuthResult.Member,
+	})
 }
 
 /*
