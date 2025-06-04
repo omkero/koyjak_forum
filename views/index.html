@@ -213,35 +213,18 @@
             </div>
           </div>
 
+          {{ range .Forums }}
           <div
             class="bg-white material-box-shadow-thin h-full w-full flex flex-col rounded-sm"
           >
             <div
               class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm"
             >
-              <a href="/forum" class="text-white">Web Development</a>
-              {{ if .IsAuth }}
-              <button id="add-th-btn" class="primary-button-design">
-                Add Thread
-              </button>
-              {{ else }}
-              <a href="/auth/signin" class="primary-button-design"
-                >Add Thread</a
-              >
-              {{ end }}
+              <a href="/forum" class="text-white">{{ .ForumCategory }}</a>
             </div>
             <div class="flex w-full h-auto justify-between gap-4">
-              {{if .Error}}
-              <div class="flex flex-col w-full h-full">
-                <div
-                  class="flex w-full h-full p-2 items-center justify-center bg-white gap-4"
-                >
-                  <h1>{{ .Error }}</h1>
-                </div>
-                <span class="bg-gray-200 w-full h-[1px]"></span>
-              </div>
-              {{ else }}
               <div class="flex flex-col w-full">
+                {{ range .Forum }}
                 <div
                   class="flex items-center w-full bg-white justify-between py-4 px-4 material-box-shadow-thin border-b border-b-zinc-200"
                 >
@@ -254,13 +237,13 @@
                         <i class="fa fa-comments text-white text-xs"></i>
                       </div>
                       <div class="flex flex-col gap-1 w-[80%]">
-                        <a href="{{ .SafeUrl }}" class="text-violet-600"
-                          >Frontend</a
+                        <a
+                          href="/forum/{{ .SafeTitle }}"
+                          class="text-violet-600"
+                          >{{ .ForumTitle }}</a
                         >
                         <p class="text-gray-500 text-sm">
-                          HTML, CSS and JavaScript - Having trouble with CSS?
-                          Post your question here. Find solutions & discuss
-                          stylesheets, hacks and techniques.
+                          {{ .ForumDescription }}
                         </p>
                       </div>
                     </div>
@@ -291,10 +274,11 @@
                     </div>
                   </div>
                 </div>
+                {{ end }}
               </div>
-              {{ end }}
             </div>
           </div>
+          {{ end }}
         </div>
 
         <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-80">

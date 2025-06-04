@@ -7,7 +7,7 @@ func MainHandler(Koyjak *fiber.App) {
 	var appko = App{}
 	{
 		Koyjak.Get("/", appko.RootPage)
-		Koyjak.Get("/forum", appko.ForumPage)
+		Koyjak.Get("/forum/:forumTitle", appko.ForumPage)
 
 	}
 	{

@@ -50,6 +50,13 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 		})
 	}
 
+	data, err := Th.get_forums()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//Th.filter_forums(data)
+
 	if latestPostsResult.Err != nil {
 		return ctx.Render("index", fiber.Map{
 			"Threads":          threadsRsult.Threads,
@@ -64,6 +71,7 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 		"IsAuth":      isAuthResult.IsAuth,
 		"Member":      isAuthResult.Member,
 		"LatestPosts": latestPostsResult.Posts,
+		"Forums": data,
 	})
 }
 
