@@ -28,6 +28,11 @@ type ForumsResult struct {
 	Err error
 }
 
+type ForumTitleExistResult struct {
+	IsExist bool
+	Err error
+}
+
 func (Th *App) create_forum() {
 
 }
@@ -69,6 +74,27 @@ func (Th *App) get_forums() ([]ForumData, error) {
 	}
 
 	return data, nil
+}
+
+func (Th *App) is_forum_title_exist(forum_title string) (bool, error) {
+	if config.Pool == nil {
+		functions.Failed_db_connection()
+	}
+
+	var count int
+	var sql_query string = `SELECT COUNT(*) AS count FROM forums WHERE forum_title = $1`
+
+	err := config.Pool.QueryRow(context.Background(), sql_query, forum_title).Scan(&count)
+	if err != nil {
+		fmt.Println(err)
+		return false, fmt.Errorf("ops somethings wnet wrong")
+	}
+
+	if count < 1 {
+		return false, fmt.Errorf("forum_title not exist")
+	}
+
+	return count >= 1, nil
 }
 
 func (Th *App) filter_forums(forums []ForumType) {

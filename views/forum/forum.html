@@ -159,6 +159,7 @@
         </p>
       </div>
       <div class="flex flex-col rounded-sm">
+        {{ range .Threads }}
         <div
           class="flex items-center w-full bg-white justify-between py-4 px-4 material-box-shadow-thin border-b border-b-zinc-200"
         >
@@ -171,11 +172,11 @@
                 <i class="fa fa-comments text-white text-xs"></i>
               </div>
               <div class="flex flex-col gap-1 w-full">
-                <a href="{{ .SafeUrl }}" class="text-violet-600"
-                  >Upcoming UX & Dev Events</a
-                >
+                <a href="/{{ .SafeUrl }}" class="text-violet-600">
+                  {{ .ThreadTitle }}
+                </a>
                 <p class="text-gray-500 text-sm">
-                  By Jogeta316, September 20, 2024
+                  By {{ .Member.UserName }}, {{ .CreatedAtSince }}
                 </p>
               </div>
             </div>
@@ -198,100 +199,13 @@
                 A
               </span>
               <div class="flex flex-col gap-1">
-                <span class="text-black text-sm">ATye</span>
-                <span class="text-zinc-500 text-xs">Yesterday at 09:31 AM</span>
+                <span class="text-black text-sm">{{ .Member.UserName }}</span>
+                <span class="text-zinc-500 text-xs">{{ .CreatedAtSince }}</span>
               </div>
             </div>
           </div>
         </div>
-        <div
-          class="flex items-center w-full bg-white justify-between py-4 px-4 material-box-shadow-thin border-b border-b-zinc-200"
-        >
-          <div class="flex flex-col gap-2">
-            <div class="flex w-full items-center gap-4">
-              <div
-                style="border-radius: 50%"
-                class="bg-neutral-200 p-2 flex items-center justify-center"
-              >
-                <i class="fa fa-comments text-white text-xs"></i>
-              </div>
-              <div class="flex flex-col gap-1 w-full">
-                <a href="{{ .SafeUrl }}" class="text-violet-600"
-                  >Profile cover photos can now be added</a
-                >
-                <p class="text-gray-500 text-sm">
-                  By Jogeta316, September 20, 2024
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-10">
-            <div class="flex flex-col gap-1">
-              <div>
-                <i class="fa-solid fa-reply text-xs text-zinc-500"></i>
-                <span class="text-zinc-500 text-xs">25 replies</span>
-              </div>
-              <div>
-                <i class="fa-solid fa-eye text-xs text-zinc-500"></i>
-                <span class="text-zinc-500 text-xs">1K views</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="h-10 w-10 bg-blue-400 flex items-center justify-center text-white font-bold rounded-full"
-              >
-                O
-              </span>
-              <div class="flex flex-col gap-1">
-                <span class="text-black text-sm">Omar</span>
-                <span class="text-zinc-500 text-xs">Yesterday at 09:31 AM</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          class="flex items-center w-full bg-white justify-between py-4 px-4 material-box-shadow-thin border-b border-b-zinc-200"
-        >
-          <div class="flex flex-col gap-2">
-            <div class="flex w-full items-center gap-4">
-              <div
-                style="border-radius: 50%"
-                class="bg-neutral-200 p-2 flex items-center justify-center"
-              >
-                <i class="fa fa-comments text-white text-xs"></i>
-              </div>
-              <div class="flex flex-col gap-1 w-full">
-                <a href="{{ .SafeUrl }}" class="text-violet-600"
-                  >NEWS: Changes to the Web Designer Forum are on their way!</a
-                >
-                <p class="text-gray-500 text-sm">By Jogeta316, Oct 16, 2023</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-10">
-            <div class="flex flex-col gap-1">
-              <div>
-                <i class="fa-solid fa-reply text-xs text-zinc-500"></i>
-                <span class="text-zinc-500 text-xs">674 replies</span>
-              </div>
-              <div>
-                <i class="fa-solid fa-eye text-xs text-zinc-500"></i>
-                <span class="text-zinc-500 text-xs">56.4K views</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="h-10 w-10 bg-green-400 flex items-center justify-center text-white font-bold rounded-full"
-              >
-                J
-              </span>
-              <div class="flex flex-col gap-1">
-                <span class="text-black text-sm">Josh KAli</span>
-                <span class="text-zinc-500 text-xs">Yesterday at 09:31 AM</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {{ end }}
       </div>
     </section>
 

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,18 +10,9 @@ import (
 type App struct{}
 
 func (Th *App) RootPage(ctx *fiber.Ctx) error {
-	threadsChannel := make(chan ThreadsResult)
 	isAuthChannel := make(chan IsAuthRsult)
 	latestPostsChannel := make(chan PostsResult)
 
-	go func() {
-		threads, err := Th.get_all_threads(5)
-
-		threadsChannel <- ThreadsResult{
-			Threads: threads,
-			Err:     err,
-		}
-	}()
 
 	go func() {
 		member, isAuth, err := Th.is_Auth(ctx)
@@ -41,14 +33,8 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 	}()
 
 	isAuthResult := <-isAuthChannel
-	threadsRsult := <-threadsChannel
 	latestPostsResult := <-latestPostsChannel
 
-	if threadsRsult.Err != nil {
-		return ctx.Render("index", fiber.Map{
-			"Error": threadsRsult.Err.Error(),
-		})
-	}
 
 	data, err := Th.get_forums()
 	if err != nil {
@@ -59,7 +45,6 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 
 	if latestPostsResult.Err != nil {
 		return ctx.Render("index", fiber.Map{
-			"Threads":          threadsRsult.Threads,
 			"IsAuth":           isAuthResult.IsAuth,
 			"Member":           isAuthResult.Member,
 			"LatestPostsError": latestPostsResult.Err.Error(),
@@ -67,7 +52,6 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Render("index", fiber.Map{
-		"Threads":     threadsRsult.Threads,
 		"IsAuth":      isAuthResult.IsAuth,
 		"Member":      isAuthResult.Member,
 		"LatestPosts": latestPostsResult.Posts,
@@ -88,7 +72,15 @@ func (Th *App) ThreadPage(ctx *fiber.Ctx) error {
 }
 
 func (Th *App) ForumPage(ctx *fiber.Ctx) error {
+
+	param := ctx.Params("forumTitle")
+	var forum_title string = strings.Replace(param, "-", " ", -1)
+
+	fmt.Println(param)
+	fmt.Println(forum_title)
+
 	isAuthChannel := make(chan IsAuthRsult)
+	threadsChan := make(chan ThreadsResult)
 
 	go func() {
 		member, isAuth, err := Th.is_Auth(ctx)
@@ -99,13 +91,32 @@ func (Th *App) ForumPage(ctx *fiber.Ctx) error {
 		}
 	}()
 
+	go func() {
+		threads, err := Th.get_all_threads(5, forum_title)
+		threadsChan <- ThreadsResult{
+			Threads: threads,
+			Err: err,
+		}
+	}()
+
 	isAuthResult := <-isAuthChannel
+	threadsPipe := <-threadsChan
 	if isAuthResult.Err != nil {
 		fmt.Println(isAuthResult.Err)
 	}
+
+	if threadsPipe.Err != nil {
+		return ctx.Render("forum/forum", fiber.Map{ 
+		"IsAuth": isAuthResult.IsAuth,
+		"Member": isAuthResult.Member,
+		"ThreadsError": threadsPipe.Err,
+  	    })
+	}
+
 	return ctx.Render("forum/forum", fiber.Map{
 		"IsAuth": isAuthResult.IsAuth,
 		"Member": isAuthResult.Member,
+		"Threads": threadsPipe.Threads,
 	})
 }
 

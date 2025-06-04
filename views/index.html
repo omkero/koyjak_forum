@@ -30,11 +30,11 @@
         <div class="z-50 bg-white h-auto w-96">
           <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
             <div class="w-full flex items-center justify-between">
-              <h1>Login</h1>
+              <h1>Create Thread</h1>
               <button id="close-th-btn" class="cursor-pointer">&#x2715;</button>
             </div>
             <div class="flex flex-col gap-3">
-              <p>Title</p>
+              <p>Thread Title</p>
               <input
                 id="thread-title"
                 name="thread-title"
@@ -45,13 +45,24 @@
             </div>
 
             <div class="flex flex-col gap-3">
-              <p>Description</p>
+              <p>Thread Content</p>
               <input
                 id="thread-content"
                 name="Description"
                 class="w-full outline outline-gray-200 p-2 focus:outline-blue-400"
                 type="text"
                 placeholder="Enter Description"
+              />
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <p>Forum Title</p>
+              <input
+                id="forum-title"
+                name="forum-title"
+                class="w-full outline outline-gray-200 p-2 focus:outline-blue-400"
+                type="text"
+                placeholder="Enter Forum Title"
               />
             </div>
 
@@ -253,7 +264,9 @@
                       <div
                         class="flex flex-col gap-1 items-center justify-center"
                       >
-                        <span class="text-black text-lg">14K</span>
+                        <span class="text-black text-lg"
+                          >{{ .ThreadsCount }}</span
+                        >
                         <span class="text-zinc-500 text-xs">Threads</span>
                       </div>
                     </div>

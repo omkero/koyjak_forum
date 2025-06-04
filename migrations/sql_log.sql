@@ -1,7 +1,15 @@
 
 -- koyjak db logs
 
+alter table threads
+add  column forum_title varchar(255) not null;
 
+
+delete from threads;
+
+select * from threads;
+
+SELECT COUNT(*) AS total FROM forums WHERE forum_title = 'Frontend';
 
 ---------------------------------
 
