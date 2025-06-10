@@ -17,6 +17,7 @@ type ForumType struct {
 	PostsCount       int       `json:"posts_count"`
 	CreatedAt        time.Time `json:"created_at"`
 	SafeTitle string `json:"safe_title"`
+	LatestThread ThreadType
 }
 
 type ForumData struct {
@@ -36,6 +37,8 @@ type ForumTitleExistResult struct {
 func (Th *App) create_forum() {
 
 }
+
+// Task * make sure each forum has latest thread info if not show indicator of empty
 
 func (Th *App) get_forums() ([]ForumData, error) {
 	if config.Pool == nil {
