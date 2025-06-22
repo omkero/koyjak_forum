@@ -44,14 +44,19 @@ select * from Users;
 
 ------------------------------------------------------------
 
-CREATE table forums (
-  forum_id SERIAL primary key,
-  forum_category varchar(255) not null,
-  forum_title varchar(255) not null,
-  forum_description text not null,
-  threads_count bigint not null,
-  posts_count bigint not null,
-  created_at timestamptz default now()
+create table forums(
+   forum_id serial primary key,
+   forum_title varchar(255) not null unique,
+   threads_count bigint default 0,
+   posts_count bigint default 0,
+   created_at timestamptz default now()
 );
 
-select * from forums;
+INSERT INTO forums (forum_title, threads_count) 
+VALUES('Frontend',1) 
+ON CONFLICT(forum_title) DO UPDATE SET threads_count = forums.threads_count + 1;
+
+INSERT INTO forums (forum_title, posts_count) 
+VALUES('Frontend',1) 
+ON CONFLICT(forum_title) DO UPDATE SET posts_count = forums.posts_count + 1;
+

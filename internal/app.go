@@ -12,7 +12,7 @@ type App struct{}
 func (Th *App) RootPage(ctx *fiber.Ctx) error {
 	isAuthChannel := make(chan IsAuthRsult)
 	latestPostsChannel := make(chan PostsResult)
-
+	latestThreadsChennel := make(chan ThreadsResult)
 
 	go func() {
 		member, isAuth, err := Th.is_Auth(ctx)
@@ -32,30 +32,56 @@ func (Th *App) RootPage(ctx *fiber.Ctx) error {
 		}
 	}()
 
+	go func() {
+		latest_threads, err := Th.get_latest_threads(5)
+
+		latestThreadsChennel <- ThreadsResult{
+			Threads: latest_threads,
+			Err:     err,
+		}
+	}()
+
 	isAuthResult := <-isAuthChannel
 	latestPostsResult := <-latestPostsChannel
-
+	latestThreadsResult := <-latestThreadsChennel
 
 	data, err := Th.get_forums()
 	if err != nil {
-		fmt.Println(err)
+		return ctx.Render("index", fiber.Map{
+			"IsAuth":        isAuthResult.IsAuth,
+			"Member":        isAuthResult.Member,
+			"LatestPosts":   latestPostsResult.Posts,
+			"LatestThreads": latestThreadsResult.Threads,
+			"Error":         err.Error(),
+		})
 	}
 
-	//Th.filter_forums(data)
+	if latestThreadsResult.Err != nil {
+		return ctx.Render("index", fiber.Map{
+			"IsAuth":             isAuthResult.IsAuth,
+			"Member":             isAuthResult.Member,
+			"LatestThreadsError": latestThreadsResult.Err.Error(),
+			"LatestPosts":        latestPostsResult.Posts,
+			"Forums":             data,
+		})
+	}
 
 	if latestPostsResult.Err != nil {
 		return ctx.Render("index", fiber.Map{
 			"IsAuth":           isAuthResult.IsAuth,
 			"Member":           isAuthResult.Member,
 			"LatestPostsError": latestPostsResult.Err.Error(),
+			"LatestThreads":    latestThreadsResult.Threads,
+			"Forums":           data,
 		})
 	}
 
 	return ctx.Render("index", fiber.Map{
-		"IsAuth":      isAuthResult.IsAuth,
-		"Member":      isAuthResult.Member,
-		"LatestPosts": latestPostsResult.Posts,
-		"Forums": data,
+		"IsAuth":        isAuthResult.IsAuth,
+		"Member":        isAuthResult.Member,
+		"LatestPosts":   latestPostsResult.Posts,
+		"LatestThreads": latestThreadsResult.Threads,
+		"Forums":        data,
 	})
 }
 
@@ -92,10 +118,10 @@ func (Th *App) ForumPage(ctx *fiber.Ctx) error {
 	}()
 
 	go func() {
-		threads, err := Th.get_all_threads(5, forum_title)
+		threads, err := Th.get_all_threads_by_forum_title(5, forum_title)
 		threadsChan <- ThreadsResult{
 			Threads: threads,
-			Err: err,
+			Err:     err,
 		}
 	}()
 
@@ -106,16 +132,16 @@ func (Th *App) ForumPage(ctx *fiber.Ctx) error {
 	}
 
 	if threadsPipe.Err != nil {
-		return ctx.Render("forum/forum", fiber.Map{ 
-		"IsAuth": isAuthResult.IsAuth,
-		"Member": isAuthResult.Member,
-		"ThreadsError": threadsPipe.Err,
-  	    })
+		return ctx.Render("forum/forum", fiber.Map{
+			"IsAuth":       isAuthResult.IsAuth,
+			"Member":       isAuthResult.Member,
+			"ThreadsError": threadsPipe.Err,
+		})
 	}
 
 	return ctx.Render("forum/forum", fiber.Map{
-		"IsAuth": isAuthResult.IsAuth,
-		"Member": isAuthResult.Member,
+		"IsAuth":  isAuthResult.IsAuth,
+		"Member":  isAuthResult.Member,
 		"Threads": threadsPipe.Threads,
 	})
 }
