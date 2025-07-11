@@ -19,6 +19,7 @@ func main() {
 	engine := html.New("./views", ".html")
 	engine.AddFunc("truncate", functions.Truncate)
 	engine.AddFunc("truncateFisrt", functions.TruncateFirstLetter)
+	engine.AddFunc("calculateCount", functions.CalculateCount)
 
 	app := fiber.New(fiber.Config{
 		Views:   engine,

@@ -18,6 +18,7 @@ type ThreadForm struct {
 	ThreadTitle   string `json:"thread_title" bindind:"required"`
 	UserID        int    `json:"user_id"`
 	ThreadContent string `json:"thread_content" bindind:"required"`
+	ForumTitle    string `json:"forum_title" binding:"required"`
 }
 
 type PostForm struct {
@@ -38,6 +39,7 @@ type ThreadType struct {
 	Member         MemberGlobalModel `json:"member" binding:"required"`
 	CreatedAtSince string            `json:"created_at_since"`
 	ThreadToken    string            `json:"thread_token"`
+	ForumTitle     string            `json:"forum_title"`
 }
 
 type ResponseThreadType struct {
@@ -78,7 +80,7 @@ type PostsResult struct {
 
 func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	param := ctx.Params("thread")
-	subsParam := strings.Replace(param, "-", " ", -1)
+	subsParam := strings.Replace(param, "-", " ", -1) // strings.Replace(param, "-", " ", -1)
 
 	isAuthChannel := make(chan IsAuthRsult)
 	threadChannel := make(chan ThreadResult)
@@ -112,7 +114,7 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	}()
 
 	go func() {
-		threads, err := Th.get_all_threads(5)
+		threads, err := Th.get_all_threads_by_forum_title(5, "Frontend")
 
 		threadsChannel <- ThreadsResult{
 			Threads: threads,
@@ -189,6 +191,39 @@ func (Th *App) post_thread_controller(ctx *fiber.Ctx) error {
 		fmt.Println(err)
 	}
 
+	if Body.ThreadTitle == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing thread_title",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
+	if Body.ThreadContent == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing thread_content",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
+	if Body.ForumTitle == "" {
+		ctx.Status(http.StatusBadRequest) // after inserting set the status as created
+		return ctx.JSON(fiber.Map{
+			"messsage": "missing forum_title",
+			"status":   http.StatusBadRequest,
+		})
+	}
+
+	forumExist := Th.is_forum_exist(Body.ForumTitle)
+	if !forumExist {
+		ctx.Status(http.StatusBadRequest)
+		return ctx.JSON(fiber.Map{
+			"messsage": fmt.Sprintf("this forum_title not exist : %s", Body.ForumTitle),
+			"status":   http.StatusBadRequest,
+		})
+	}
+
 	isAuthChan := make(chan IsAuthRsult)
 	insertChan := make(chan error)
 
@@ -202,8 +237,8 @@ func (Th *App) post_thread_controller(ctx *fiber.Ctx) error {
 	}()
 
 	isAuthresult := <-isAuthChan
-	Body.UserID = isAuthresult.Member.UserID
 
+	Body.UserID = isAuthresult.Member.UserID
 	if isAuthresult.Err != nil {
 		ctx.Status(http.StatusUnauthorized) // after inserting set the status as created
 		return ctx.JSON(fiber.Map{
@@ -213,14 +248,14 @@ func (Th *App) post_thread_controller(ctx *fiber.Ctx) error {
 	}
 
 	go func() {
-		_, err := Th.insert_thread(Body)
+		err := Th.insert_thread(Body)
 		insertChan <- err
 	}()
 
 	isInsertedResult := <-insertChan
 
 	if isInsertedResult != nil {
-		fmt.Println(err)
+		fmt.Println(isInsertedResult)
 	}
 
 	ctx.Status(http.StatusCreated) // after inserting set the status as created
@@ -307,35 +342,90 @@ func (Th *App) post_reply_controller(ctx *fiber.Ctx) error {
 }
 
 // make sure to inner join member to each one
-func (Th *App) get_all_threads(limit int) ([]ThreadType, error) {
+func (Th *App) get_all_threads_by_forum_title(limit int, forum_title string) ([]ThreadType, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
 
 	var threads []ThreadType
-	var sql_query string = "SELECT * FROM Threads ORDER BY created_at DESC LIMIT $1"
+
+	var sql_query string = `
+	SELECT 
+	   t.thread_id, t.user_id, t.thread_title, t.thread_content, t.created_at, t.safe_url, t.thread_token,
+	   u.user_id, u.username, u.email_address, u.created_at
+	FROM Threads t
+	INNER JOIN Users u ON u.user_id = t.user_id WHERE forum_title = $1 ORDER BY t.created_at DESC LIMIT $2
+	`
+	row, err := config.Pool.Query(context.Background(), sql_query, forum_title, limit)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return []ThreadType{}, fmt.Errorf("threads not found !!")
+		}
+		fmt.Println("Here : ", err)
+		return []ThreadType{}, functions.Something_wnt_wrong()
+	}
+
+	for row.Next() {
+		var thread ThreadType
+
+		err = row.Scan(
+			&thread.ThreadID, &thread.UserID, &thread.ThreadTitle, &thread.ThreadContent, &thread.CreatedAt, &thread.SafeUrl, &thread.ThreadToken,
+			&thread.Member.UserID, &thread.Member.UserName, &thread.Member.EmailAddress, &thread.Member.CreatedAt,
+		)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		t := thread.CreatedAt
+		date := functions.TimeAgo(t)
+		thread.CreatedAtSince = date
+
+		threads = append(threads, thread)
+	}
+
+	return threads, err
+}
+
+// make sure to inner join member to each one
+func (Th *App) get_latest_threads(limit int) ([]ThreadType, error) {
+	if config.Pool == nil {
+		functions.Failed_db_connection()
+	}
+
+	var threads []ThreadType
+
+	var sql_query string = `
+	SELECT 
+	   t.thread_id, t.user_id, t.thread_title, t.thread_content, t.created_at, t.safe_url, t.thread_token,
+	   u.user_id, u.username, u.email_address, u.created_at
+	FROM Threads t
+	INNER JOIN Users u ON u.user_id = t.user_id  ORDER BY t.created_at DESC LIMIT $1
+	`
 	row, err := config.Pool.Query(context.Background(), sql_query, limit)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return []ThreadType{}, fmt.Errorf("threads not found !!")
 		}
-		fmt.Println(err)
+		fmt.Println("Here : ", err)
 		return []ThreadType{}, functions.Something_wnt_wrong()
 	}
 
 	for row.Next() {
-		var tempThread ThreadType
+		var thread ThreadType
 
-		err = row.Scan(&tempThread.ThreadID, &tempThread.UserID, &tempThread.ThreadTitle, &tempThread.ThreadContent, &tempThread.CreatedAt, &tempThread.SafeUrl, &tempThread.ThreadToken)
+		err = row.Scan(
+			&thread.ThreadID, &thread.UserID, &thread.ThreadTitle, &thread.ThreadContent, &thread.CreatedAt, &thread.SafeUrl, &thread.ThreadToken,
+			&thread.Member.UserID, &thread.Member.UserName, &thread.Member.EmailAddress, &thread.Member.CreatedAt,
+		)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		t := tempThread.CreatedAt
+		t := thread.CreatedAt
 		date := functions.TimeAgo(t)
-		tempThread.CreatedAtSince = date
+		thread.CreatedAtSince = date
 
-		threads = append(threads, tempThread)
+		threads = append(threads, thread)
 	}
 
 	return threads, err
@@ -390,7 +480,7 @@ func (Th *App) get_thread_by_title(thread_title string) (ThreadType, error) {
 	return thread, nil
 }
 
-func (Th *App) insert_thread(body ThreadForm) (bool, error) {
+func (Th *App) insert_thread(body ThreadForm) error {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
 	}
@@ -399,29 +489,49 @@ func (Th *App) insert_thread(body ThreadForm) (bool, error) {
 	var thread_id int
 	var safe_url string = strings.Replace(body.ThreadTitle, " ", "-", -1)
 	var sql_query string = `
-	INSERT INTO Threads (thread_title, user_id, thread_content, safe_url) VALUES ($1, $2, $3, $4)
+	INSERT INTO Threads (thread_title, user_id, thread_content, safe_url, forum_title) VALUES ($1, $2, $3, $4, $5)
 	RETURNING thread_id
 	`
-
-	err := config.Pool.QueryRow(context.Background(), sql_query, body.ThreadTitle, body.UserID, body.ThreadContent, safe_url).Scan(&thread_id)
+	transaction, err := config.Pool.Begin(context.Background())
 	if err != nil {
-		return false, err
+		return err
+	}
+	defer transaction.Rollback(context.Background())
+
+	err = config.Pool.QueryRow(context.Background(), sql_query, body.ThreadTitle, body.UserID, body.ThreadContent, safe_url, body.ForumTitle).Scan(&thread_id)
+	if err != nil {
+		return err
 	}
 	secreteKey := os.Getenv("THREAD_KEY_NAME")
-	threadToken, err := GenerateThreadToken(thread_id, secreteKey)
+	threadToken, err := GenerateThreadToken(thread_id, secreteKey) // generate thread token so no one can modify thread_id
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	var update_sql_query string = `UPDATE Threads SET thread_token = $1 WHERE thread_id = $2`
-	Exec, err := config.Pool.Exec(context.Background(), update_sql_query, threadToken, thread_id)
+	var update_sql_query string = `
+	UPDATE Threads SET thread_token = $1 WHERE thread_id = $2`
+	_, err = config.Pool.Exec(context.Background(), update_sql_query, threadToken, thread_id)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
-	fmt.Println(Exec.RowsAffected())
+	// here make sure to create a forum if not exist or modify it by inc threads_count if forum exist
+	var inc_sql string = `
+    INSERT INTO forums (forum_title, threads_count) 
+      VALUES($1,1) 
+    ON CONFLICT(forum_title) DO UPDATE SET threads_count = forums.threads_count + 1;
+	`
+	_, err = config.Pool.Exec(context.Background(), inc_sql, body.ForumTitle)
+	if err != nil {
+		return err
+	}
 
-	return Exec.RowsAffected() >= 1, nil
+	err = transaction.Commit(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (Th *App) thread_posts(thread_id int64) ([]ThreadPost, error) {
@@ -442,7 +552,7 @@ func (Th *App) thread_posts(thread_id int64) ([]ThreadPost, error) {
 	rows, err := config.Pool.Query(context.Background(), sql_query, thread_id)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return []ThreadPost{}, fmt.Errorf("post not found.")
+			return []ThreadPost{}, fmt.Errorf("post not found")
 		}
 		fmt.Println(err)
 		return []ThreadPost{}, functions.Something_wnt_wrong()

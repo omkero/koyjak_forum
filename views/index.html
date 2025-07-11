@@ -2,214 +2,284 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="http://127.0.0.1:8080/static/js/tailwind.css.min.js"></script>
-    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/globals.css" />
-    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/all.min.css" />
-    <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/fontawesome/all.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="http://127.0.0.1:8080/static/js/tailwind.css.min.js"></script>
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/globals.css" />
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/all.min.css" />
+  <link rel="stylesheet" href="http://127.0.0.1:8080/static/css/fontawesome/all.css" />
 </head>
-<style>
-</style>
+<style></style>
 
 <body class="panel-bg">
-    <section class="panel-bg h-auto w-full flex flex-col relative">
-        <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none;"
-            class="h-screen w-full fixed  items-center justify-center">
-            <div class="z-50 bg-white h-auto w-96 ">
-                <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
-                    <div class="w-full flex items-center justify-between">
-                        <h1>Login</h1>
-                        <button id="close-th-btn" class="cursor-pointer">&#x2715;</button>
-                    </div>
-                    <div class="flex flex-col gap-3">
-                        <p>Title</p>
-                        <input id="thread-title" name="thread-title"
-                            class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
-                            placeholder="Enter Title" />
-                    </div>
+  <section class="panel-bg h-auto w-full flex flex-col relative">
+    <div id="th-modal" style="background-color: rgb(0, 0, 0, 0.4); display: none"
+      class="h-screen w-full fixed items-center justify-center">
+      <div class="z-50 bg-white h-auto w-96">
+        <div class="bg-white p-3 py-5 h-auto w-96 flex flex-col gap-4">
+          <div class="w-full flex items-center justify-between">
+            <h1>Create Thread</h1>
+            <button id="close-th-btn" class="cursor-pointer">&#x2715;</button>
+          </div>
+          <div class="flex flex-col gap-3">
+            <p>Thread Title</p>
+            <input id="thread-title" name="thread-title"
+              class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
+              placeholder="Enter Title" />
+          </div>
 
-                    <div class="flex flex-col gap-3">
-                        <p>Description</p>
-                        <input id="thread-content" name="Description"
-                            class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
-                            placeholder="Enter Description" />
-                    </div>
+          <div class="flex flex-col gap-3">
+            <p>Thread Content</p>
+            <input id="thread-content" name="Description"
+              class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
+              placeholder="Enter Description" />
+          </div>
 
-                    <div class="flex">
-                        <button id="create-thread-btn" class="primary-button-design w-full" type="submit">Create
-                            Thread</button>
-                    </div>
-                </div>
-            </div>
+          <div class="flex flex-col gap-3">
+            <p>Forum Title</p>
+            <input id="forum-title" name="forum-title"
+              class="w-full outline outline-gray-200 p-2 focus:outline-blue-400" type="text"
+              placeholder="Enter Forum Title" />
+          </div>
+
+          <div class="flex">
+            <button id="create-thread-btn" class="primary-button-design w-full" type="submit">
+              Create Thread
+            </button>
+          </div>
         </div>
-        <header class="header-bg h-auto w-full  duration-300 flex flex-col items-center gap-3 justify-between py-3">
-            <div class="w-full">
-                <div class="w-full flex items-center justify-between main-horizontal-padding">
-                    <a href="/">
-                        <img class="logo-img" src="http://localhost:8080/static/imgs/example-logo.png" />
-                    </a>
+      </div>
+    </div>
+    <header class="header-bg h-auto w-full duration-300 flex flex-col items-center gap-3 justify-between py-3">
+      <div class="w-full">
+        <div class="w-full flex items-center justify-between main-horizontal-padding">
+          <a href="/">
+            <img class="logo-img" src="http://localhost:8080/static/imgs/example-logo.png" />
+          </a>
 
-                    {{ if .IsAuth }}
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-white">welcome user</h1>
-                        <h1 class="text-white">{{ .Member.UserName }}</h1>
-                        <form method="post" action="/auth/session_logout">
-                            <button class="primary-button-design" type="submit">Log Out</button>
-                        </form>
-                    </div>
-                    {{ else }}
-                    <div class="flex items-center gap-3">
-                        <a href="auth/signin" class="p-2 cursor-pointer text-white font-normal">
-                            Existing user? Sign In
-                        </a>
-                        <a href="auth/signup" class="primary-button-design">Sign Up</a>
-                    </div>
-                    {{ end }}
-                </div>
-                <div class="w-full flex items-center justify-between main-horizontal-padding">
-                    <div class="flex items-center gap-4">
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="/">Home</a>
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Events</a>
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Activity</a>
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Support</a>
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Boards</a>
-                        <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Extra</a>
-                    </div>
-                    <div>
-                        <input name="search"
-                            class="w-60 bg-white rounded-md text-black outline-none py-1 px-3 hidden sm:flex"
-                            type="text" placeholder="Search .." />
-                    </div>
-                </div>
-            </div>
-        </header>
-    </section>
-    <section>
-        <div class="main-horizontal-padding h-auto py-6 flex flex-col lg:flex-row gap-4">
-
-            <div class="bg-white material-box-shadow-thin h-auto w-full flex flex-col rounded-sm">
-                <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
-                    <h1 class="text-white">Discussion Forum</h1>
-                    {{ if .IsAuth }}
-                    <button id="add-th-btn" class=" primary-button-design">Add Thread</button>
-                    {{ else }}
-                    <a href="/auth/signin" class=" primary-button-design">Add Thread</a>
-                    {{ end }}
-                </div>
-                <div class="flex w-full h-auto justify-between gap-4">
-                    {{if .Error}}
-                    <div class="flex flex-col w-full h-full">
-                        <div class="flex w-full h-full p-2 items-center justify-center bg-white gap-4">
-                            <h1>{{ .Error }}</h1>
-                        </div>
-                        <span class="bg-gray-200 w-full h-[1px]"></span>
-                    </div>
-                    {{ else }}
-                    <div class="flex flex-col w-full">
-                        {{ range .Threads }}
-                        <div class="flex w-full p-2 items-center bg-white gap-4">
-                            <div style="border-radius: 50%;"
-                                class="bg-neutral-200 p-5 flex items-center justify-center">
-                                <i class="fa fa-comments text-white"></i>
-                            </div>
-                            <div class="flex flex-col gap-1 w-full">
-                                <a href="{{ .SafeUrl }}" class=" text-violet-600">{{ .ThreadTitle }}</a>
-                                <div class="w-full flex justify-between">
-                                    <p class="text-gray-500 text-sm">{{ .ThreadContent }}</p>
-                                    <p class="text-sm" data-time="{{ .CreatedAt }}">{{
-                                        .CreatedAtSince }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <span class="bg-gray-200 w-full h-[1px]"></span>
-                        {{ end }}
-                    </div>
-                    {{ end }}
-                </div>
-            </div>
-
-            <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-96">
-                <div class="material-box-shadow-thin w-full">
-                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-                        <h1 class="text-white">Recents Threads</h1>
-                    </div>
-                    {{ if .Error }}
-                    <div class="p-2 bg-white">
-                        <p class="text-xs">{{ .Error }}</p>
-                    </div>
-                    {{ else }}
-                    {{ range .Threads }}
-                    <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
-
-                        <span
-                            class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
-                            {{ truncateFisrt .Member.UserName }}
-                        </span>
-
-                        <div class="flex flex-col gap-1">
-                            <a href="{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer"> {{ truncate
-                                .ThreadTitle 30 }} </a>
-                            <dv class="flex flex-wrap items-center gap-2">
-                                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
-                                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
-                            </dv>
-                        </div>
-                    </div>
-
-                    {{ end }}
-                    {{ end }}
-                </div>
-                <div class="rounded-tl-sm rounded-tr-sm material-box-shadow-thin w-full">
-                    <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
-                        <h1 class="text-white">Latest Posts</h1>
-                    </div>
-                    {{ if .LatestPostsError }}
-                    <div class="p-2 bg-white">
-                        <p class="text-xs">{{ .LatestPostsError }}</p>
-                    </div>
-                    {{ else }}
-                    {{ range .LatestPosts }}
-                    <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
-
-                        <span
-                            class=" h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
-                            {{ truncateFisrt .Member.UserName }}
-                        </span>
-
-                        <div class="flex flex-col gap-1">
-                            <h1 class="text-base text-violet-600 cursor-pointer"> {{ truncate .PostTitle 30 }} </h1>
-                            <dv class="flex flex-wrap items-center gap-2">
-                                <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>
-                                <span class="text-xs text-gray-500"> {{ .CreatedAtSince }} </span>
-                            </dv>
-                        </div>
-                    </div>
-
-                    {{ end }}
-                    {{ end }}
-                </div>
-            </div>
-
+          {{ if .IsAuth }}
+          <div class="flex items-center gap-3">
+            <h1 class="text-white">welcome user</h1>
+            <h1 class="text-white">{{ .Member.UserName }}</h1>
+            <form method="post" action="/auth/session_logout">
+              <button class="primary-button-design" type="submit">
+                Log Out
+              </button>
+            </form>
+          </div>
+          {{ else }}
+          <div class="flex items-center gap-3">
+            <a href="auth/signin" class="p-2 cursor-pointer text-white font-normal">
+              Existing user? Sign In
+            </a>
+            <a href="auth/signup" class="primary-button-design">Sign Up</a>
+          </div>
+          {{ end }}
         </div>
-    </section>
-    <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">
-        <div class="flex gap-3">
-            <a class="text-sm text-gray-700" href="#">Contact Us</a>
-            <a class="text-sm text-gray-700" href="#">Privacy Policy</a>
-            <a class="text-sm text-gray-700" href="#">About Us</a>
-            <a class="text-sm text-gray-700" href="#">Code of Conduct</a>
-            <a class="text-sm text-gray-700" href="#">TOS</a>
-            <a class="text-sm text-gray-700" href="#">FTC</a>
+        <div class="w-full flex items-center justify-between main-horizontal-padding">
+          <div class="flex items-center gap-4">
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="/">Home</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Events</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Activity</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Support</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Boards</a>
+            <a class="text-zinc-300 font-normal text-sm hover:text-white" href="#">Extra</a>
+          </div>
+          <div>
+            <input name="search" class="w-60 bg-white rounded-md text-black outline-none py-1 px-3 hidden sm:flex"
+              type="text" placeholder="Search .." />
+          </div>
         </div>
-        <div class="flex items-center gap-1">
-            <p class="text-xs text-zinc-400">Forum v0.0.1 Powered by</p>
-            <a target="_blank" class="hover:underline text-xs text-violet-600"
-                href="https://github.com/omkero">omkero</a>
+      </div>
+    </header>
+  </section>
+  <section>
+    <div class="main-horizontal-padding h-auto justify-between w-full py-6 flex flex-col lg:flex-row gap-4">
+      <div class="flex flex-col w-full h-full gap-4">
+        <div class="bg-white material-box-shadow-thin h-full w-full flex flex-col rounded-sm">
+          <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
+            <a href="/forum" class="text-white">Discussion Forum</a>
+            {{ if .IsAuth }}
+            <button id="add-th-btn" class="primary-button-design">
+              Add Thread
+            </button>
+            {{ else }}
+            <a href="/auth/signin" class="primary-button-design">Add Thread</a>
+            {{ end }}
+          </div>
+          <div class="flex w-full h-auto justify-between gap-4">
+            {{if .Error}}
+            <div class="flex flex-col w-full h-full">
+              <div class="flex w-full h-full p-2 items-center justify-center bg-white gap-4">
+                <h1>{{ .Error }}</h1>
+              </div>
+              <span class="bg-gray-200 w-full h-[1px]"></span>
+            </div>
+            {{ else }}
+            <div class="flex flex-col w-full">
+              {{ range .Threads }}
+              <div class="flex w-full p-2 items-center bg-white gap-4">
+                <div style="border-radius: 50%" class="bg-neutral-200 p-5 flex items-center justify-center">
+                  <i class="fa fa-comments text-white"></i>
+                </div>
+                <div class="flex flex-col gap-1 w-full">
+                  <a href="{{ .SafeUrl }}" class="text-violet-600">{{ .ThreadTitle }}</a>
+                  <div class="w-full flex justify-between">
+                    <p class="text-gray-500 text-sm">
+                      {{ truncate .ThreadContent 120 }}
+                    </p>
+                    <p class="text-sm" data-time="{{ .CreatedAt }}">
+                      {{ .CreatedAtSince }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <span class="bg-gray-200 w-full h-[1px]"></span>
+              {{ end }}
+            </div>
+            {{ end }}
+          </div>
         </div>
-    </footer>
-    <script src="http://localhost:8080/static/js/global.js"></script>
+
+        {{ range $category, $forum := .Forums}}
+        <div class="bg-white material-box-shadow-thin h-full w-full flex flex-col rounded-sm">
+          <div class="w-full header-bg p-2 flex justify-between items-center rounded-tl-sm rounded-tr-sm">
+            <a href="/forum" class="text-white">{{ $category }}</a>
+          </div>
+          <div class="flex w-full h-auto justify-between gap-4">
+            <div class="flex flex-col w-full">
+              {{ range $forum }}
+              <div
+                class="flex items-center w-full bg-white justify-between py-4 px-4 material-box-shadow-thin border-b border-b-zinc-200">
+                <div class="flex flex-col gap-2 w-full">
+                  <div class="flex w-full items-center gap-4">
+                    <div style="border-radius: 50%" class="bg-neutral-200 p-2 flex items-center justify-center">
+                      <i class="fa fa-comments text-white text-xs"></i>
+                    </div>
+                    <div class="flex flex-col gap-1 w-[80%]">
+                      <a href="/forum/{{ .ForumPathTitle }}" class="text-violet-600">{{ .ForumTitle }}</a>
+                      <p class="text-gray-500 text-sm">
+                        {{ .ForumDescription }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-8 justify-end">
+
+                  <div class="flex flex-col gap-1 items-end justify-center">
+                    <span class="text-black text-lg">{{ calculateCount .ThreadsCount }}</span>
+                    <span style="font-size: 9px;" class="text-zinc-500 text-xs">Threads</span>
+                  </div>
+
+                  {{ if .LatestThread.ThreadTitle }}
+                  <div class="flex items-center  w-full gap-3">
+                    <div
+                      class="h-10 w-10 bg-blue-400 flex items-center justify-center text-white font-bold rounded-full text-sm shrink-0">
+                      {{ truncateFisrt .LatestThread.Member.UserName }}
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <a href="/thread/{{.LatestThread.SafeUrl}}" class="text-violet-400 text-sm w-52">
+                        {{ truncate .LatestThread.ThreadTitle 35 }}
+                      </a>
+                      <span class="text-zinc-500 text-xs">by {{ .LatestThread.Member.UserName }} {{
+                        .LatestThread.CreatedAtSince }} </span>
+                    </div>
+                  </div>
+                  {{ end }}
+                </div>
+              </div>
+              {{ end }}
+            </div>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+
+      <div class="flex flex-row lg:flex-col gap-7 w-full lg:w-80">
+        <div class="material-box-shadow-thin bg-white w-full">
+          <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+            <h1 class="text-white">Recents Threads</h1>
+          </div>
+          {{ if .LatestThreadsError }}
+          <div class="p-2 bg-white">
+            <p class="text-xs">{{ .LatestThreadsError }}</p>
+          </div>
+          {{ else }} 
+          {{ range .LatestThreads }}
+          <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+            <span class="h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+              {{ truncateFisrt .Member.UserName }}
+            </span>
+
+            <div class="flex flex-col gap-1">
+              <a href="/thread/{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer">
+                {{ truncate .ThreadTitle 30 }}
+              </a>
+              <dv class="flex flex-wrap items-center gap-2">
+                <p class="text-xs text-gray-500">
+                  by · {{ .Member.UserName }}
+                </p>
+                <span class="text-xs text-gray-500">
+                  {{ .CreatedAtSince }}
+                </span>
+              </dv>
+            </div>
+          </div>
+
+          {{ end }} {{ end }}
+        </div>
+        <div class="rounded-tl-sm bg-white rounded-tr-sm material-box-shadow-thin w-full">
+          <div class="p-2 header-bg rounded-tl-sm rounded-tr-sm">
+            <h1 class="text-white">Latest Posts</h1>
+          </div>
+          {{ if .LatestPostsError }}
+          <div class="p-2 bg-white">
+            <p class="text-xs">{{ .LatestPostsError }}</p>
+          </div>
+          {{ else }} 
+          {{ range .LatestPosts }}
+          <div class="p-2 bg-white flex items-start gap-3 border-b border-b-gray-200">
+            <span class="h-10 w-10 px-3 bg-orange-400 rounded-full flex items-center justify-center text-white">
+              {{ truncateFisrt .Member.UserName }}
+            </span>
+
+            <div class="flex flex-col gap-1">
+              <h1 class="text-base text-violet-600 cursor-pointer">
+                {{ truncate .PostTitle 30 }}
+              </h1>
+              <dv class="flex flex-wrap items-center gap-2">
+                <p class="text-xs text-gray-500">
+                  by · {{ .Member.UserName }}
+                </p>
+                <span class="text-xs text-gray-500">
+                  {{ .CreatedAtSince }}
+                </span>
+              </dv>
+            </div>
+          </div>
+
+          {{ end }} {{ end }}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="flex flex-col w-full items-center justify-center gap-3 py-5">
+    <div class="flex gap-3">
+      <a class="text-sm text-gray-700" href="#">Contact Us</a>
+      <a class="text-sm text-gray-700" href="#">Privacy Policy</a>
+      <a class="text-sm text-gray-700" href="#">About Us</a>
+      <a class="text-sm text-gray-700" href="#">Code of Conduct</a>
+      <a class="text-sm text-gray-700" href="#">TOS</a>
+      <a class="text-sm text-gray-700" href="#">FTC</a>
+    </div>
+    <div class="flex items-center gap-1">
+      <p class="text-xs text-zinc-400">Forum v0.1.1 Powered by</p>
+      <a target="_blank" class="hover:underline text-xs text-violet-600" href="https://github.com/omkero">omkero</a>
+    </div>
+  </footer>
+  <script src="http://localhost:8080/static/js/global.js"></script>
 </body>
 
 </html>

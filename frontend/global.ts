@@ -1,19 +1,36 @@
 // Type assertions for all elements
 const thModal = document.getElementById("th-modal") as HTMLElement | null;
-const thCloseBtn = document.getElementById("close-th-btn") as HTMLButtonElement | null;
+const thCloseBtn = document.getElementById(
+  "close-th-btn"
+) as HTMLButtonElement | null;
 const thAdd = document.getElementById("add-th-btn") as HTMLButtonElement | null;
-const replyBtn = document.getElementById("create-post-btn") as HTMLButtonElement | null;
-const threadCreateBtn = document.getElementById("create-thread-btn") as HTMLButtonElement | null;
+const replyBtn = document.getElementById(
+  "create-post-btn"
+) as HTMLButtonElement | null;
+const threadCreateBtn = document.getElementById(
+  "create-thread-btn"
+) as HTMLButtonElement | null;
 const thParent = document.getElementById("th-parent") as HTMLElement | null;
 
-const signupBtn = document.getElementById("signup-btn") as HTMLButtonElement | null;
-const signInBtn = document.getElementById("sginin-btn") as HTMLButtonElement | null;
+const signupBtn = document.getElementById(
+  "signup-btn"
+) as HTMLButtonElement | null;
+const signInBtn = document.getElementById(
+  "sginin-btn"
+) as HTMLButtonElement | null;
 
-const responseBoxError: any = document.getElementById("response-box-error") as HTMLElement | null;
-const responseMsgError: any = document.getElementById("resnponse-msg-error") as HTMLElement | null;
-const responseBoxSuccess: any = document.getElementById("response-box-success") as HTMLElement | null;
-const responseMsgSuccess: any = document.getElementById("resnponse-msg-success") as HTMLElement | null;
-
+const responseBoxError: any = document.getElementById(
+  "response-box-error"
+) as HTMLElement | null;
+const responseMsgError: any = document.getElementById(
+  "resnponse-msg-error"
+) as HTMLElement | null;
+const responseBoxSuccess: any = document.getElementById(
+  "response-box-success"
+) as HTMLElement | null;
+const responseMsgSuccess: any = document.getElementById(
+  "resnponse-msg-success"
+) as HTMLElement | null;
 
 if (thModal && thCloseBtn && thAdd) {
   thAdd.addEventListener("click", () => {
@@ -28,13 +45,21 @@ if (thModal && thCloseBtn && thAdd) {
 
 if (threadCreateBtn) {
   threadCreateBtn.onclick = async () => {
-    const threadTitleInput = document.getElementById("thread-title") as HTMLInputElement | null;
-    const threadContentInput = document.getElementById("thread-content") as HTMLTextAreaElement | null;
+    const threadTitleInput = document.getElementById(
+      "thread-title"
+    ) as HTMLInputElement | null;
+    const threadContentInput = document.getElementById(
+      "thread-content"
+    ) as HTMLTextAreaElement | null;
+    const threadForumTitle = document.getElementById(
+      "forum-title"
+    ) as HTMLTextAreaElement | null;
 
-    if (!threadTitleInput || !threadContentInput) return;
+    if (!threadTitleInput || !threadContentInput || !threadForumTitle) return;
 
     const threadTitle = threadTitleInput.value;
     const threadContent = threadContentInput.value;
+    const forumTitle = threadForumTitle.value;
 
     const response = await fetch("/create_thread", {
       method: "POST",
@@ -44,6 +69,7 @@ if (threadCreateBtn) {
       body: JSON.stringify({
         thread_title: threadTitle,
         thread_content: threadContent,
+        forum_title: forumTitle,
       }),
     });
 
@@ -58,8 +84,12 @@ if (threadCreateBtn) {
 
 if (replyBtn && thParent) {
   replyBtn.onclick = async () => {
-    const postTitleInput = document.getElementById("post-title") as HTMLInputElement | null;
-    const postContentInput = document.getElementById("post-content") as HTMLTextAreaElement | null;
+    const postTitleInput = document.getElementById(
+      "post-title"
+    ) as HTMLInputElement | null;
+    const postContentInput = document.getElementById(
+      "post-content"
+    ) as HTMLTextAreaElement | null;
 
     if (!postTitleInput || !postContentInput) return;
 
@@ -87,18 +117,26 @@ if (replyBtn && thParent) {
   };
 }
 
-if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
-
+if (
+  signInBtn &&
+  responseBoxError &&
+  responseMsgError &&
+  responseBoxSuccess &&
+  responseMsgSuccess
+) {
   signInBtn.onclick = async () => {
     try {
-      const emailInputHtml = document.getElementById("sginin-email") as HTMLInputElement | null;
-      const passwordInputHtml = document.getElementById("sginin-password") as HTMLInputElement | null;
+      const emailInputHtml = document.getElementById(
+        "sginin-email"
+      ) as HTMLInputElement | null;
+      const passwordInputHtml = document.getElementById(
+        "sginin-password"
+      ) as HTMLInputElement | null;
 
       if (!emailInputHtml || !passwordInputHtml) return;
 
-      const emailInput = emailInputHtml.value
-      const passwordInput = passwordInputHtml.value
-
+      const emailInput = emailInputHtml.value;
+      const passwordInput = passwordInputHtml.value;
 
       if (!emailInput) {
         responseBoxError.style.display = "flex";
@@ -117,7 +155,10 @@ if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
         headers: {
           "Content-type": "application/json",
         },
-        body: JSON.stringify({ email_address: emailInput, password: passwordInput }),
+        body: JSON.stringify({
+          email_address: emailInput,
+          password: passwordInput,
+        }),
       });
 
       const data = await response.json();
@@ -131,18 +172,29 @@ if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
         responseMsgError.innerText = data?.message;
       }
     } catch (err) {
-     // console.error(err);
+      // console.error(err);
     }
   };
 }
 
-
-if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
+if (
+  signupBtn &&
+  responseBoxError &&
+  responseMsgError &&
+  responseBoxSuccess &&
+  responseMsgSuccess
+) {
   signupBtn.onclick = async () => {
     try {
-      const usernameInput = document.getElementById("reg-username") as HTMLInputElement | null;
-      const emailInput = document.getElementById("reg-email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("reg-password") as HTMLInputElement | null;
+      const usernameInput = document.getElementById(
+        "reg-username"
+      ) as HTMLInputElement | null;
+      const emailInput = document.getElementById(
+        "reg-email"
+      ) as HTMLInputElement | null;
+      const passwordInput = document.getElementById(
+        "reg-password"
+      ) as HTMLInputElement | null;
 
       if (!usernameInput || !emailInput || !passwordInput) return;
 
@@ -185,7 +237,8 @@ if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
       } else {
         responseBoxError.style.display = "none";
         responseBoxSuccess.style.display = "flex";
-        responseMsgSuccess.innerText = "You have successfully created an account. You can login now.";
+        responseMsgSuccess.innerText =
+          "You have successfully created an account. You can login now.";
       }
     } catch (err) {
       //console.error(err);
@@ -200,4 +253,3 @@ function CloseErrAlert() {
 function CloseSuccAlert() {
   if (responseBoxSuccess) responseBoxSuccess.style.display = "none";
 }
-

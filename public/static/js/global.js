@@ -34,10 +34,12 @@ if (threadCreateBtn) {
     threadCreateBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
         const threadTitleInput = document.getElementById("thread-title");
         const threadContentInput = document.getElementById("thread-content");
-        if (!threadTitleInput || !threadContentInput)
+        const threadForumTitle = document.getElementById("forum-title");
+        if (!threadTitleInput || !threadContentInput || !threadForumTitle)
             return;
         const threadTitle = threadTitleInput.value;
         const threadContent = threadContentInput.value;
+        const forumTitle = threadForumTitle.value;
         const response = yield fetch("/create_thread", {
             method: "POST",
             headers: {
@@ -46,6 +48,7 @@ if (threadCreateBtn) {
             body: JSON.stringify({
                 thread_title: threadTitle,
                 thread_content: threadContent,
+                forum_title: forumTitle,
             }),
         });
         const datas = yield response.json();
@@ -81,7 +84,11 @@ if (replyBtn && thParent) {
         }
     });
 }
-if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
+if (signInBtn &&
+    responseBoxError &&
+    responseMsgError &&
+    responseBoxSuccess &&
+    responseMsgSuccess) {
     signInBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const emailInputHtml = document.getElementById("sginin-email");
@@ -105,7 +112,10 @@ if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
                 headers: {
                     "Content-type": "application/json",
                 },
-                body: JSON.stringify({ email_address: emailInput, password: passwordInput }),
+                body: JSON.stringify({
+                    email_address: emailInput,
+                    password: passwordInput,
+                }),
             });
             const data = yield response.json();
             if (response.status === 200) {
@@ -122,7 +132,11 @@ if (signInBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
         }
     });
 }
-if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && responseMsgSuccess) {
+if (signupBtn &&
+    responseBoxError &&
+    responseMsgError &&
+    responseBoxSuccess &&
+    responseMsgSuccess) {
     signupBtn.onclick = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const usernameInput = document.getElementById("reg-username");
@@ -164,7 +178,8 @@ if (signupBtn && responseBoxError && responseMsgError && responseBoxSuccess && r
             else {
                 responseBoxError.style.display = "none";
                 responseBoxSuccess.style.display = "flex";
-                responseMsgSuccess.innerText = "You have successfully created an account. You can login now.";
+                responseMsgSuccess.innerText =
+                    "You have successfully created an account. You can login now.";
             }
         }
         catch (err) {
