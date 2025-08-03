@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"koyjak/config"
 	"koyjak/internal/functions"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -79,8 +81,14 @@ type PostsResult struct {
 }
 
 func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
-	param := ctx.Params("thread")
-	subsParam := strings.Replace(param, "-", " ", -1) // strings.Replace(param, "-", " ", -1)
+	// param := ctx.Params("thread")
+	queryParam := ctx.Query("thid")
+
+	// subsParam := strings.Replace(param, "-", " ", -1) // strings.Replace(param, "-", " ", -1)
+	threadId, err := strconv.Atoi(queryParam) // i want to convert this string to umber
+	if err != nil {
+		log.Println("Error converting queryParam to int:", err)
+	}
 
 	isAuthChannel := make(chan IsAuthRsult)
 	threadChannel := make(chan ThreadResult)
@@ -97,7 +105,7 @@ func (Th *App) get_thread_controller(ctx *fiber.Ctx) error {
 	}()
 
 	go func() {
-		thread, err := Th.get_thread_by_title(subsParam)
+		thread, err := Th.get_thread_by_id(threadId)
 		threadChannel <- ThreadResult{
 			Thread: thread,
 			Err:    err,
@@ -431,21 +439,23 @@ func (Th *App) get_latest_threads(limit int) ([]ThreadType, error) {
 	return threads, err
 }
 
-func (Th *App) get_thread_by_id(thread_id int) ThreadType {
-	if config.Pool == nil {
-		functions.Failed_db_connection()
+/*
+	func (Th *App) get_thread_by_id(thread_id int) ThreadType {
+		if config.Pool == nil {
+			functions.Failed_db_connection()
+		}
+
+		var thread ThreadType
+		var sql_query string = "SELECT * FROM Threads WHERE thread_id = $1"
+
+		err := config.Pool.QueryRow(context.Background(), sql_query, thread_id).Scan(thread.ThreadID, thread.UserID, thread.ThreadTitle, thread.ThreadContent, thread.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		return thread
 	}
-
-	var thread ThreadType
-	var sql_query string = "SELECT * FROM Threads WHERE thread_id = $1"
-
-	err := config.Pool.QueryRow(context.Background(), sql_query, thread_id).Scan(thread.ThreadID, thread.UserID, thread.ThreadTitle, thread.ThreadContent, thread.CreatedAt)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return thread
-}
+*/
 func (Th *App) get_thread_by_title(thread_title string) (ThreadType, error) {
 	if config.Pool == nil {
 		functions.Failed_db_connection()
@@ -480,6 +490,39 @@ func (Th *App) get_thread_by_title(thread_title string) (ThreadType, error) {
 	return thread, nil
 }
 
+func (Th *App) get_thread_by_id(thread_id int) (ThreadType, error) {
+	if config.Pool == nil {
+		functions.Failed_db_connection()
+	}
+
+	var thread ThreadType
+	//	var sql_query string = "SELECT * FROM Threads WHERE thread_title = $1"
+
+	var sql_query = `
+	SELECT 
+	   t.thread_id, t.user_id, t.thread_title, t.thread_content, t.created_at, t.safe_url, t.thread_token,
+	   u.user_id, u.username, u.email_address, u.created_at
+	FROM Threads t
+	INNER JOIN Users u ON u.user_id = t.user_id WHERE t.thread_id = $1
+	`
+
+	err := config.Pool.QueryRow(context.Background(), sql_query, thread_id).Scan(
+		&thread.ThreadID, &thread.UserID, &thread.ThreadTitle, &thread.ThreadContent, &thread.CreatedAt, &thread.SafeUrl, &thread.ThreadToken,
+		&thread.Member.UserID, &thread.Member.UserName, &thread.Member.EmailAddress, &thread.Member.CreatedAt,
+	)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return ThreadType{}, fmt.Errorf("thread not found.")
+		}
+		return ThreadType{}, functions.Something_wnt_wrong()
+	}
+
+	t := thread.CreatedAt
+	date := functions.TimeAgo(t)
+	thread.CreatedAtSince = date
+
+	return thread, nil
+}
 func (Th *App) insert_thread(body ThreadForm) error {
 	if config.Pool == nil {
 		functions.Failed_db_connection()

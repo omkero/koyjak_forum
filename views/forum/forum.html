@@ -172,7 +172,7 @@
                 <i class="fa fa-comments text-white text-xs"></i>
               </div>
               <div class="flex flex-col gap-1 w-full">
-                <a href="/thread/{{ .SafeUrl }}" class="text-violet-600">
+                <a href="/thread/{{ .SafeUrl }}?thid={{ .ThreadID }}" class="text-violet-600">
                   {{ .ThreadTitle }}
                 </a>
                 <p class="text-gray-500 text-sm">

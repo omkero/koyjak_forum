@@ -201,7 +201,7 @@
             </span>
 
             <div class="flex flex-col gap-1">
-              <a href="{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer"> {{ truncate .ThreadTitle 30 }}
+              <a href="{{ .SafeUrl }}?thid={{ .ThreadID }}" class="text-base text-violet-600 cursor-pointer"> {{ truncate .ThreadTitle 30 }}
               </a>
               <dv class="flex flex-wrap items-center gap-2">
                 <p class="text-xs text-gray-500">by · {{ .Member.UserName }}</p>

@@ -124,7 +124,7 @@
                   <i class="fa fa-comments text-white"></i>
                 </div>
                 <div class="flex flex-col gap-1 w-full">
-                  <a href="{{ .SafeUrl }}" class="text-violet-600">{{ .ThreadTitle }}</a>
+                  <a href="{{ .SafeUrl }}?thid={{ .ThreadID }}" class="text-violet-600">{{ .ThreadTitle }}</a>
                   <div class="w-full flex justify-between">
                     <p class="text-gray-500 text-sm">
                       {{ truncate .ThreadContent 120 }}
@@ -179,7 +179,7 @@
                       {{ truncateFisrt .LatestThread.Member.UserName }}
                     </div>
                     <div class="flex flex-col gap-1">
-                      <a href="/thread/{{.LatestThread.SafeUrl}}" class="text-violet-400 text-sm w-52">
+                      <a href="/thread/{{.LatestThread.SafeUrl}}?thid={{ .LatestThread.ThreadID }}" class="text-violet-400 text-sm w-52">
                         {{ truncate .LatestThread.ThreadTitle 35 }}
                       </a>
                       <span class="text-zinc-500 text-xs">by {{ .LatestThread.Member.UserName }} {{
@@ -213,7 +213,7 @@
             </span>
 
             <div class="flex flex-col gap-1">
-              <a href="/thread/{{ .SafeUrl }}" class="text-base text-violet-600 cursor-pointer">
+              <a href="/thread/{{ .SafeUrl }}?thid={{ .ThreadID }}" class="text-base text-violet-600 cursor-pointer">
                 {{ truncate .ThreadTitle 30 }}
               </a>
               <dv class="flex flex-wrap items-center gap-2">

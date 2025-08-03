@@ -72,6 +72,11 @@ pg_restore --clean -U postgres -d koyjak ./db.sql
 sudo -u postgres psql
 
 \c koyjak
+
+or you can export it 
+
+pg_dump -U postgres -h localhost -p 5432 koyjak > database.sql
+
 ```
 
 ## 🧠 Step 5: Tune Linux Kernel for Max Connections
